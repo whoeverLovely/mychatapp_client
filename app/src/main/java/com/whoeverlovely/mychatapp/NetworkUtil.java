@@ -2,6 +2,8 @@ package com.whoeverlovely.mychatapp;
 
 import android.util.Log;
 
+import com.google.common.base.Strings;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -20,10 +22,10 @@ public class NetworkUtil {
 
     private static final String TAG = "NetworkUtil";
 
-    public static JSONObject executePost(String url, JSONObject JSONdata) throws JSONException{
+    public static JSONObject executePost(String url, JSONObject JSONdata) throws JSONException {
         JSONObject resp = null;
 
-        HttpURLConnection httpURLConnection = null;
+        HttpURLConnection httpURLConnection;
         try {
             httpURLConnection = (HttpURLConnection) new URL(url).openConnection();
             httpURLConnection.setRequestMethod("POST");
@@ -46,8 +48,11 @@ public class NetworkUtil {
                 inputStreamData = inputStreamReader.read();
                 response += current;
             }
-            resp = new JSONObject(response);
-            Log.d(TAG, "Received POST response: " + resp);
+
+            Log.d(TAG, "Received POST String response: " + response);
+            if (!Strings.isNullOrEmpty(response))
+                resp = new JSONObject(response);
+            Log.d(TAG, "Received POST JSON response: " + resp);
             in.close();
         } catch (IOException e) {
             e.printStackTrace();

@@ -16,6 +16,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.common.base.Strings;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -28,10 +30,10 @@ public class ChatBoxActivity extends AppCompatActivity {
     private EditText inputEditText;
     private TextView displayMsgTextView;
 
-    String receiverId;
-    String receiverName;
-    String senderId;
-    String senderName;
+    String Friend_Id;
+    String Friend_Name;
+    String My_Id;
+    String My_Name;
 
 
     @Override
@@ -39,25 +41,29 @@ public class ChatBoxActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_box);
         shared_preference = getSharedPreferences(getString(R.string.default_shared_preference), MODE_PRIVATE);
+        inputEditText = (EditText) findViewById(R.id.chatbox_textEditor);
+        displayMsgTextView = (TextView) findViewById(R.id.chatbox_displayMsg);
 
-        receiverId = getString(R.string.friend_id);
-        receiverName = getString(R.string.friend_name);
-        senderId = shared_preference.getString("myUserId", null);
-        senderName = "Me";
+        Friend_Id = getString(R.string.friend_id);
+        Friend_Name = getString(R.string.friend_name);
+        My_Id = shared_preference.getString("myUserId", null);
+        My_Name = "Me";
         TextView userNameTextView = (TextView)findViewById(R.id.chatbox_friendName);
-        userNameTextView.setText(receiverName);
+        userNameTextView.setText(Friend_Name);
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
-                new IntentFilter(receiverId));
+                new IntentFilter(Friend_Id));
+        Log.d(TAG,"activity intent name: " + Friend_Id);
 
         Button sendButton = findViewById(R.id.chatbox_sendButton);
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                inputEditText = (EditText) findViewById(R.id.chatbox_textEditor);
                 String msgContent = inputEditText.getText().toString();
-                new SendMsgTask(getApplicationContext()).execute(msgContent);
-                inputEditText.setText("");
+                if(!Strings.isNullOrEmpty(msgContent)) {
+                    new SendMsgTask(getApplicationContext()).execute(msgContent);
+                    inputEditText.setText("");
+                }
             }
         });
 
@@ -77,23 +83,23 @@ public class ChatBoxActivity extends AppCompatActivity {
             String msgContent = strings[0];
 
             //encrypt msgContent with userId_AES
-            String encryptedMsg = new AESKeyczarUtil(context).encrypt(receiverId, msgContent);
+            String encryptedMsg = new AESKeyczarUtil(context).encrypt(Friend_Id, msgContent);
 
             try {
                 JSONObject data = new JSONObject();
-                data.put("from", senderId);
+                data.put("from", My_Id);
                 data.put("msgContent", encryptedMsg);
 
                 JSONObject param = new JSONObject();
-                param.put("userId", senderId);
+                param.put("userId", My_Id);
                 param.put("chat_token", AESKeyStoreUtil.decryptAESKeyStore(shared_preference.getString("chat_token", null)));
-                param.put("receiverUserId", receiverId);
+                param.put("receiverUserId", Friend_Id);
                 param.put("data", data.toString());
 
                 JSONObject result = NetworkUtil.executePost(url,param);
-                Log.d(TAG, "Sent message: " + msgContent + " to " + receiverName);
+                Log.d(TAG, "Sent message: " + msgContent + " to " + Friend_Name);
                 //if no error received from server, pass the plain msgContent to onPostExecute
-                if(!result.has("error")) {
+                if(result == null) {
                     JSONObject jsonObject = new JSONObject();
                     jsonObject.put("msgContent", msgContent);
                     return jsonObject;
@@ -116,11 +122,9 @@ public class ChatBoxActivity extends AppCompatActivity {
                 try {
                     String msgContent = jsonObject.getString("msgContent");
                     if(msgContent != null) {
-                        displayMsgTextView = (TextView) findViewById(R.id.chatbox_displayMsg);
-                        displayMsgTextView.append(senderName+ " : " + msgContent + System.getProperty("line.separator"));
+                        displayMsgTextView.append(My_Name + " : " + msgContent + System.getProperty("line.separator"));
 
                     } else {
-                        //TODO make a toast to show error msg
                         String error = jsonObject.getString("error");
                         Toast.makeText(ChatBoxActivity.this, error, Toast.LENGTH_SHORT).show();
                     }
@@ -139,9 +143,8 @@ public class ChatBoxActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
 
             String msgContent = intent.getStringExtra("decryptedMsgContent");
-            Log.d(TAG, "Got message: " + msgContent + " from " + senderName);
-            displayMsgTextView = (TextView) findViewById(R.id.chatbox_displayMsg);
-            displayMsgTextView.append(senderName + ": " + msgContent + System.getProperty("line.separator"));
+            Log.d(TAG, "Got message: " + msgContent + " from " + Friend_Name);
+            displayMsgTextView.append(Friend_Name + ": " + msgContent + System.getProperty("line.separator"));
 
         }
     };

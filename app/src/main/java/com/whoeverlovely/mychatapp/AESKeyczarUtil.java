@@ -3,6 +3,7 @@ package com.whoeverlovely.mychatapp;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Base64;
+import android.util.Log;
 
 import org.keyczar.AesKey;
 import org.keyczar.Crypter;
@@ -28,9 +29,12 @@ public class AESKeyczarUtil {
 
     public byte[] retrieveAESKey(String userId) {
 
+        Log.d(TAG,"retrieveAESKey userId: " + userId);
         SharedPreferences user_key = context.getSharedPreferences(context.getString(R.string.user_key), MODE_PRIVATE);
         String encryptedAESKey = user_key.getString(userId+"_AES", null);
+        Log.d(TAG, "encryptedAESKey " + encryptedAESKey);
         String decryptedAESKey = AESKeyStoreUtil.decryptAESKeyStore(encryptedAESKey);
+        Log.d(TAG, "retrieve AES key from shared preference and decrypt: " + decryptedAESKey);
         return Base64.decode(decryptedAESKey, Base64.DEFAULT);
 
     }

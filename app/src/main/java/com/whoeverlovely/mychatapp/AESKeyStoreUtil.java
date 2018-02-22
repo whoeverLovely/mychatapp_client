@@ -123,6 +123,7 @@ public class AESKeyStoreUtil {
         Cipher cipher = prepareDefaultCipher(Cipher.DECRYPT_MODE);
         byte[] decryptedByte = new byte[0];
         try {
+            Log.d(TAG, "encrypted msg is : " + encryptedText);
             decryptedByte = cipher.doFinal(Base64.decode(encryptedText, Base64.DEFAULT));
             decryptedText = new String(decryptedByte, "UTF-8");
         } catch (GeneralSecurityException | IOException e) {

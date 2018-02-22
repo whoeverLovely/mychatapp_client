@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -27,7 +28,17 @@ import org.json.JSONObject;
 import org.keyczar.DefaultKeyType;
 import org.keyczar.Encrypter;
 import org.keyczar.RsaPublicKey;
+import org.keyczar.Signer;
+import org.keyczar.Verifier;
 import org.keyczar.exceptions.KeyczarException;
+
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
 
 import me.pushy.sdk.Pushy;
 
@@ -65,6 +76,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
+        if(item.getItemId() == R.id.chat) {
+            Intent intent = new Intent(this, ChatBoxActivity.class);
+            startActivity(intent);
+            return true;
+        }
+
         if(item.getItemId() == R.id.generate_key_item) {
 
             //prepare data for generating profile
@@ -91,6 +108,7 @@ public class MainActivity extends AppCompatActivity {
             } catch (WriterException e) {
                 e.printStackTrace();
             }
+            return true;
         }
 
         if(item.getItemId() == R.id.scan_qrcode_item) {
@@ -107,8 +125,75 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if(item.getItemId() == R.id.test_item_main) {
-            Intent intent = new Intent(this, ChatBoxActivity.class);
-            startActivity(intent);
+//            try {
+//                Signer signer = new Signer(new SignKeyReader(this));
+//                String signature = signer.sign("Message with Integrity");
+//                Log.d("signature: ", signature);
+//
+//                String publicKey = shared_preference.getString(getString(R.string.my_public_key),null);
+//                RsaPublicKey key = (RsaPublicKey) DefaultKeyType.RSA_PUB.getBuilder().read(publicKey);
+//                VerifierKeyReader verifierReader = new VerifierKeyReader(key);
+//                Verifier verifier = new Verifier(verifierReader);
+//                boolean verified = verifier.verify("Message with Integrity", signature);
+//                Log.d("verified: ", String.valueOf(verified));
+//            } catch (Exception e) {
+//                Log.d(TAG,e.toString());
+//            }
+            Map<String, ?> defaultPrefs = shared_preference.getAll();
+            Log.d(TAG,"default_shared_preference");
+            for (String key : defaultPrefs.keySet()) {
+                Object pref = defaultPrefs.get(key);
+                String printVal = "";
+                if (pref instanceof Boolean) {
+                    printVal =  key + " : " + (Boolean) pref;
+                }
+                if (pref instanceof Float) {
+                    printVal =  key + " : " + (Float) pref;
+                }
+                if (pref instanceof Integer) {
+                    printVal =  key + " : " + (Integer) pref;
+                }
+                if (pref instanceof Long) {
+                    printVal =  key + " : " + (Long) pref;
+                }
+                if (pref instanceof String) {
+                    printVal =  key + " : " + (String) pref;
+                }
+                if (pref instanceof Set<?>) {
+                    printVal =  key + " : " + (Set<String>) pref;
+                }
+
+                Log.d(TAG,printVal);
+            }
+
+            Map<String, ?> prefs = user_key.getAll();
+            Log.d(TAG,"user_key");
+            for (String key : prefs.keySet()) {
+                Object pref = prefs.get(key);
+                String printVal = "";
+                if (pref instanceof Boolean) {
+                    printVal =  key + " : " + (Boolean) pref;
+                }
+                if (pref instanceof Float) {
+                    printVal =  key + " : " + (Float) pref;
+                }
+                if (pref instanceof Integer) {
+                    printVal =  key + " : " + (Integer) pref;
+                }
+                if (pref instanceof Long) {
+                    printVal =  key + " : " + (Long) pref;
+                }
+                if (pref instanceof String) {
+                    printVal =  key + " : " + (String) pref;
+                }
+                if (pref instanceof Set<?>) {
+                    printVal =  key + " : " + (Set<String>) pref;
+                }
+
+                Log.d(TAG,printVal);
+            }
+
+
             return true;
         }
 
@@ -137,7 +222,7 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
 
-                SharedPreferences.Editor editor = user_key.edit();
+                final SharedPreferences.Editor editor = user_key.edit();
                 editor.putString(userId,publicKey);
                 editor.apply();
 
@@ -145,8 +230,11 @@ public class MainActivity extends AppCompatActivity {
                 if(myUserId.compareTo(userId) < 0)
                     new ExchangeKey(getApplicationContext()).execute(userId, publicKey, myUserId);
 
-                //delete the other user's public key in an hour
+
                 //TODO  pop up for user name
+
+
+                //TODO delete the other user's public key in an hour
 
             }
             if(resultCode == RESULT_CANCELED){
@@ -172,12 +260,15 @@ public class MainActivity extends AppCompatActivity {
             SharedPreferences.Editor editor = user_key.edit();
             editor.putString(userId+"_AES",AESKeyStoreUtil.encryptAESKeyStore(aesKey));
             editor.apply();
-            //TODO delete from sharedPreference later
 
             JSONObject data = null;
             try {
 
-                //TODO sign
+                //Sign AES key
+                Signer signer = new Signer(new SignKeyReader(context));
+                String signature = signer.sign(aesKey);
+                Log.d("signature: ", signature);
+
                 RsaPublicKey key = (RsaPublicKey) DefaultKeyType.RSA_PUB.getBuilder().read(publicKey);
                 FriendKeyczarReader friendKeyczarReader = new FriendKeyczarReader(key);
                 Encrypter enc = new Encrypter(friendKeyczarReader);
@@ -186,6 +277,8 @@ public class MainActivity extends AppCompatActivity {
                 data = new JSONObject();
                 data.put("key", encryptedAESKey);
                 data.put("from", myUserId);
+                data.put("signature", signature);
+
 
             } catch (JSONException e) {
                 Log.d(TAG,e.toString());

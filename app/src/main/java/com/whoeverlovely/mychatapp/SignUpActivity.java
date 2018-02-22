@@ -92,7 +92,7 @@ public class SignUpActivity extends AppCompatActivity {
                 //send pushy_token and password to server for registration, server will return myUserId and chat_token
                 result = NetworkUtil.executePost(url, param);
             } catch (PushyException | JSONException e) {
-                errorTextView.setText(e.toString());
+                Log.d(TAG, e.toString());
             }
             return result;
         }
@@ -101,7 +101,9 @@ public class SignUpActivity extends AppCompatActivity {
         protected void onPostExecute(JSONObject jsonObject) {
             mLoadingIndicator.setVisibility(View.INVISIBLE);
             try {
-                if (jsonObject.has("error")) {
+                if (jsonObject == null) {
+                    errorTextView.setText("Internet error!");
+                } else if (jsonObject.has("error")) {
                     errorTextView.setText(jsonObject.getString("error"));
                 } else {
                     //register with mychatapp server successfully
@@ -127,6 +129,7 @@ public class SignUpActivity extends AppCompatActivity {
                     Intent intent = new Intent(context, MainActivity.class);
                     startActivity(intent);
                 }
+
             } catch (JSONException e) {
                 e.printStackTrace();
             }
