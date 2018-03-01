@@ -76,8 +76,10 @@
         <service android:name="me.pushy.sdk.services.PushySocketService" />
 
         <!-- End Pushy Declarations -->
-        <activity android:name=".SignUpActivity"></activity>
-        <activity android:name=".ChatBoxActivity"></activity>
+        <activity android:name=".SignUpActivity" />
+        <activity android:name=".ChatBoxActivity" />
+        <activity android:name=".TestActivity" />
+        <activity android:name=".ContactsActivity"></activity>
     </application>
 
 </manifest>

@@ -1,5 +1,7 @@
 package com.whoeverlovely.mychatapp;
 
+import android.util.Log;
+
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -12,6 +14,9 @@ import static org.junit.Assert.*;
 public class ExampleUnitTest {
     @Test
     public void addition_isCorrect() throws Exception {
-        assertEquals(4, 2 + 2);
+
+        String s = "4_AES";
+        s = s.substring(0,s.indexOf("_AES"));
+        System.out.println(s);
     }
 }

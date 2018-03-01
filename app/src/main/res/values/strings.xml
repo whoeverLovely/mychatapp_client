@@ -25,11 +25,11 @@
     <string name="my_public_key">my_public_key</string>
 
     <!--nexus-->
-    <string name="friend_id">4</string>
-    <string name="friend_name">moto</string>
+    <!--<string name="friend_id">4</string>-->
+    <!--<string name="friend_name">moto</string>-->
 
     <!--moto-->
-    <!--<string name="friend_id">3</string>-->
-    <!--<string name="friend_name">Samsung</string>-->
+    <string name="friend_id">3</string>
+    <string name="friend_name">Samsung</string>
 
 </resources>

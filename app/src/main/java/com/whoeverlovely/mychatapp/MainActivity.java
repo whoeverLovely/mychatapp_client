@@ -9,10 +9,13 @@ import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -32,6 +35,8 @@ import org.keyczar.Signer;
 import org.keyczar.Verifier;
 import org.keyczar.exceptions.KeyczarException;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -42,10 +47,14 @@ import java.util.concurrent.FutureTask;
 
 import me.pushy.sdk.Pushy;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity{
+
     final private static String TAG = "MainActivity";
+
     private TextView profileStrTextView;
     private ImageView profileQRcodeImageView;
+
+
     SharedPreferences shared_preference;
     SharedPreferences user_key;
     String myUserId;
@@ -125,80 +134,18 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if(item.getItemId() == R.id.test_item_main) {
-//            try {
-//                Signer signer = new Signer(new SignKeyReader(this));
-//                String signature = signer.sign("Message with Integrity");
-//                Log.d("signature: ", signature);
-//
-//                String publicKey = shared_preference.getString(getString(R.string.my_public_key),null);
-//                RsaPublicKey key = (RsaPublicKey) DefaultKeyType.RSA_PUB.getBuilder().read(publicKey);
-//                VerifierKeyReader verifierReader = new VerifierKeyReader(key);
-//                Verifier verifier = new Verifier(verifierReader);
-//                boolean verified = verifier.verify("Message with Integrity", signature);
-//                Log.d("verified: ", String.valueOf(verified));
-//            } catch (Exception e) {
-//                Log.d(TAG,e.toString());
-//            }
-            Map<String, ?> defaultPrefs = shared_preference.getAll();
-            Log.d(TAG,"default_shared_preference");
-            for (String key : defaultPrefs.keySet()) {
-                Object pref = defaultPrefs.get(key);
-                String printVal = "";
-                if (pref instanceof Boolean) {
-                    printVal =  key + " : " + (Boolean) pref;
-                }
-                if (pref instanceof Float) {
-                    printVal =  key + " : " + (Float) pref;
-                }
-                if (pref instanceof Integer) {
-                    printVal =  key + " : " + (Integer) pref;
-                }
-                if (pref instanceof Long) {
-                    printVal =  key + " : " + (Long) pref;
-                }
-                if (pref instanceof String) {
-                    printVal =  key + " : " + (String) pref;
-                }
-                if (pref instanceof Set<?>) {
-                    printVal =  key + " : " + (Set<String>) pref;
-                }
+           Intent intent = new Intent(this, TestActivity.class);
+           startActivity(intent);
+           return true;
+        }
 
-                Log.d(TAG,printVal);
-            }
-
-            Map<String, ?> prefs = user_key.getAll();
-            Log.d(TAG,"user_key");
-            for (String key : prefs.keySet()) {
-                Object pref = prefs.get(key);
-                String printVal = "";
-                if (pref instanceof Boolean) {
-                    printVal =  key + " : " + (Boolean) pref;
-                }
-                if (pref instanceof Float) {
-                    printVal =  key + " : " + (Float) pref;
-                }
-                if (pref instanceof Integer) {
-                    printVal =  key + " : " + (Integer) pref;
-                }
-                if (pref instanceof Long) {
-                    printVal =  key + " : " + (Long) pref;
-                }
-                if (pref instanceof String) {
-                    printVal =  key + " : " + (String) pref;
-                }
-                if (pref instanceof Set<?>) {
-                    printVal =  key + " : " + (Set<String>) pref;
-                }
-
-                Log.d(TAG,printVal);
-            }
-
-
+        if(item.getItemId() == R.id.contact_list_item) {
+            Intent intent = new Intent(this, ContactsActivity.class);
+            startActivity(intent);
             return true;
         }
 
-        else
-            return super.onOptionsItemSelected(item);
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -318,4 +265,5 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
 }
