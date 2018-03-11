@@ -1,5 +1,6 @@
 package com.whoeverlovely.mychatapp;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -8,7 +9,7 @@ import java.util.List;
  * Created by liyan on 2/22/18.
  */
 
-public class Contact {
+public class Contact implements Serializable{
 
     private String name;
     private String userId;

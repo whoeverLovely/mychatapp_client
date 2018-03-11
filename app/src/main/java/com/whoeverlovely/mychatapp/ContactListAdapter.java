@@ -17,10 +17,10 @@ public class ContactListAdapter extends RecyclerView.Adapter<ContactListAdapter.
 
     private static final String TAG = "ContactListAdapter";
     private List<Contact> contactList;
-    final private ContactListAdapterOnClickHandler handler;
+    private ContactItemClickHandler itemClickHandler;
 
-    public ContactListAdapter(ContactListAdapterOnClickHandler handler) {
-        this.handler = handler;
+    public ContactListAdapter(ContactItemClickHandler itemClickHandler) {
+        this.itemClickHandler = itemClickHandler;
     }
 
     @Override
@@ -39,10 +39,10 @@ public class ContactListAdapter extends RecyclerView.Adapter<ContactListAdapter.
         Contact contact = contactList.get(position);
         String name = contact.getName();
         String userId = contact.getUserId();
-        if(name != null)
-        holder.ContactItemTextView.setText(contact.getName());
+        if (name != null)
+            holder.ContactItemTextView.setText(name);
         else
-            holder.ContactItemTextView.setText(contact.getName());
+            holder.ContactItemTextView.setText(userId);
 
     }
 
@@ -58,13 +58,13 @@ public class ContactListAdapter extends RecyclerView.Adapter<ContactListAdapter.
     }
 
     class ContactItemViewHolder extends RecyclerView.ViewHolder
-            implements View.OnClickListener {
+            implements View.OnClickListener{
 
         public TextView ContactItemTextView;
 
         public ContactItemViewHolder(View itemView) {
             super(itemView);
-            ContactItemTextView = (TextView) itemView.findViewById(R.id.contact_item);
+            ContactItemTextView = itemView.findViewById(R.id.contact_item);
             itemView.setOnClickListener(this);
         }
 
@@ -72,11 +72,11 @@ public class ContactListAdapter extends RecyclerView.Adapter<ContactListAdapter.
         public void onClick(View view) {
             int adapterPosition = getAdapterPosition();
             Contact contact = contactList.get(adapterPosition);
-            handler.onClick(contact);
+            itemClickHandler.onClick(contact);
         }
     }
 
-    public interface ContactListAdapterOnClickHandler {
+    public interface ContactItemClickHandler {
         void onClick(Contact contact);
     }
 }

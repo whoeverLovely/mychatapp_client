@@ -41,11 +41,15 @@ public class ChatBoxActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_box);
         shared_preference = getSharedPreferences(getString(R.string.default_shared_preference), MODE_PRIVATE);
-        inputEditText = (EditText) findViewById(R.id.chatbox_textEditor);
-        displayMsgTextView = (TextView) findViewById(R.id.chatbox_displayMsg);
 
-        Friend_Id = getString(R.string.friend_id);
-        Friend_Name = getString(R.string.friend_name);
+        inputEditText = findViewById(R.id.chatbox_textEditor);
+        displayMsgTextView = findViewById(R.id.chatbox_displayMsg);
+
+        Intent intent = getIntent();
+        Contact contact = (Contact) intent.getSerializableExtra("contact");
+        Friend_Id = contact.getUserId();
+        Friend_Name = contact.getName();
+
         My_Id = shared_preference.getString("myUserId", null);
         My_Name = "Me";
         TextView userNameTextView = (TextView)findViewById(R.id.chatbox_friendName);

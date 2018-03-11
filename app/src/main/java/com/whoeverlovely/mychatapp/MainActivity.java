@@ -1,6 +1,8 @@
 package com.whoeverlovely.mychatapp;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -12,10 +14,12 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -47,7 +51,7 @@ import java.util.concurrent.FutureTask;
 
 import me.pushy.sdk.Pushy;
 
-public class MainActivity extends AppCompatActivity{
+public class MainActivity extends AppCompatActivity {
 
     final private static String TAG = "MainActivity";
 
@@ -67,7 +71,7 @@ public class MainActivity extends AppCompatActivity{
         user_key = getSharedPreferences(getString(R.string.user_key), MODE_PRIVATE);
         shared_preference = getSharedPreferences(getString(R.string.default_shared_preference), MODE_PRIVATE);
         myUserId = shared_preference.getString("myUserId", null);
-        if(myUserId == null) {
+        if (myUserId == null) {
             Intent intent = new Intent(this, SignUpActivity.class);
             startActivity(intent);
         }
@@ -85,17 +89,17 @@ public class MainActivity extends AppCompatActivity{
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        if(item.getItemId() == R.id.chat) {
+        if (item.getItemId() == R.id.chat) {
             Intent intent = new Intent(this, ChatBoxActivity.class);
             startActivity(intent);
             return true;
         }
 
-        if(item.getItemId() == R.id.generate_key_item) {
+        if (item.getItemId() == R.id.generate_key_item) {
 
             //prepare data for generating profile
-            String publicKey = shared_preference.getString(getString(R.string.my_public_key),null);
-            Log.d(TAG,"my public key is " + publicKey);
+            String publicKey = shared_preference.getString(getString(R.string.my_public_key), null);
+            Log.d(TAG, "my public key is " + publicKey);
             JSONObject profileJSON = new JSONObject();
             try {
                 profileJSON.put("myUserId", myUserId);
@@ -120,7 +124,7 @@ public class MainActivity extends AppCompatActivity{
             return true;
         }
 
-        if(item.getItemId() == R.id.scan_qrcode_item) {
+        if (item.getItemId() == R.id.scan_qrcode_item) {
             try {
                 Intent intent = new Intent("com.google.zxing.client.android.SCAN");
                 intent.putExtra("SCAN_MODE", "QR_CODE_MODE"); // "PRODUCT_MODE for bar codes
@@ -133,13 +137,13 @@ public class MainActivity extends AppCompatActivity{
             return true;
         }
 
-        if(item.getItemId() == R.id.test_item_main) {
-           Intent intent = new Intent(this, TestActivity.class);
-           startActivity(intent);
-           return true;
+        if (item.getItemId() == R.id.test_item_main) {
+            Intent intent = new Intent(this, TestActivity.class);
+            startActivity(intent);
+            return true;
         }
 
-        if(item.getItemId() == R.id.contact_list_item) {
+        if (item.getItemId() == R.id.contact_list_item) {
             Intent intent = new Intent(this, ContactsActivity.class);
             startActivity(intent);
             return true;
@@ -156,42 +160,74 @@ public class MainActivity extends AppCompatActivity{
             if (resultCode == RESULT_OK) {
                 String profile = data.getStringExtra("SCAN_RESULT");
 
-                String userId = null;
-                String publicKey = null;
                 try {
                     JSONObject profileJSON = new JSONObject(profile);
-                    userId = profileJSON.getString("myUserId");
-                    publicKey = profileJSON.getString("publicKey");
-                    publicKey = FriendKeyczarReader.createRsaPublicKey(this,publicKey);
-                    Log.d(TAG,"myUserId scanned is " + userId);
+                    final String userId = profileJSON.getString("myUserId");
+                    String publicKey = profileJSON.getString("publicKey");
+                    publicKey = FriendKeyczarReader.createRsaPublicKey(this, publicKey);
+                    Log.d(TAG, "myUserId scanned is " + userId);
                     Log.d(TAG, "publicKey scanned is " + publicKey);
+
+                    final SharedPreferences.Editor editor = user_key.edit();
+                    editor.putString(userId, publicKey);
+                    editor.apply();
+
+                    //if my user id is less than the other user, I create an AES key and send to the other user
+                    if (myUserId.compareTo(userId) < 0)
+                        new ExchangeKey(getApplicationContext()).execute(userId, publicKey, myUserId);
+
+                    //TODO  display dialog for user name
+                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+
+                    // get username_dialog.xml view
+                    LayoutInflater inflater = LayoutInflater.from(this);
+                    View promptsView = inflater.inflate(R.layout.username_dialog, null);
+
+                    // set username_dialog.xml to alertdialog builder
+                    alertDialogBuilder.setView(promptsView);
+
+                    final EditText userInput = promptsView.findViewById(R.id.username_editText);
+
+                    // set dialog message
+                    alertDialogBuilder
+                            .setCancelable(false)
+                            .setPositiveButton("OK",
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int id) {
+                                            // get user input and set it as username to user_key sharedPreference
+                                            editor.putString(userId + "_username", userInput.getText().toString());
+                                            editor.apply();
+                                        }
+                                    })
+                            .setNegativeButton("Cancel",
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int id) {
+                                            dialog.cancel();
+                                        }
+                                    });
+
+                    // create alert dialog
+                    AlertDialog alertDialog = alertDialogBuilder.create();
+
+                    // show it
+                    alertDialog.show();
+
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
 
-                final SharedPreferences.Editor editor = user_key.edit();
-                editor.putString(userId,publicKey);
-                editor.apply();
-
-                //if my user id is less than the other user, I create an AES key and send to the other user
-                if(myUserId.compareTo(userId) < 0)
-                    new ExchangeKey(getApplicationContext()).execute(userId, publicKey, myUserId);
-
-
-                //TODO  pop up for user name
-
-
                 //TODO delete the other user's public key in an hour
 
             }
-            if(resultCode == RESULT_CANCELED){
+            if (resultCode == RESULT_CANCELED) {
                 //handle cancel
             }
         }
     }
 
-    private class ExchangeKey extends AsyncTask<String,Void,JSONObject> {
+    private class ExchangeKey extends AsyncTask<String, Void, JSONObject> {
         Context context;
+
         public ExchangeKey(Context context) {
             this.context = context;
         }
@@ -203,9 +239,9 @@ public class MainActivity extends AppCompatActivity{
 
             //generate aeskey for the friend, encrypt and save in user_key
             String aesKey = AESKeyStoreUtil.generateAESKey();
-            Log.d(TAG,"generated aes key: " + aesKey);
+            Log.d(TAG, "generated aes key: " + aesKey);
             SharedPreferences.Editor editor = user_key.edit();
-            editor.putString(userId+"_AES",AESKeyStoreUtil.encryptAESKeyStore(aesKey));
+            editor.putString(userId + "_AES", AESKeyStoreUtil.encryptAESKeyStore(aesKey));
             editor.apply();
 
             JSONObject data = null;
@@ -228,7 +264,7 @@ public class MainActivity extends AppCompatActivity{
 
 
             } catch (JSONException e) {
-                Log.d(TAG,e.toString());
+                Log.d(TAG, e.toString());
             } catch (KeyczarException e) {
                 e.printStackTrace();
             }
@@ -243,9 +279,9 @@ public class MainActivity extends AppCompatActivity{
                 parameter.put("receiverUserId", userId);
                 parameter.put("chat_token", AESKeyStoreUtil.decryptAESKeyStore(chat_token));
                 parameter.put("userId", myUserId);
-                result = NetworkUtil.executePost(url,parameter);
+                result = NetworkUtil.executePost(url, parameter);
             } catch (JSONException e) {
-                Log.d(TAG,e.toString());
+                Log.d(TAG, e.toString());
             }
 
             return result;
@@ -253,15 +289,15 @@ public class MainActivity extends AppCompatActivity{
 
         @Override
         protected void onPostExecute(JSONObject jsonObject) {
-            if(jsonObject != null && jsonObject.has("error")) {
+            if (jsonObject != null && jsonObject.has("error")) {
                 String error = null;
                 try {
                     error = jsonObject.getString("error");
-                    Toast.makeText(context,error,Toast.LENGTH_LONG).show();
+                    Toast.makeText(context, error, Toast.LENGTH_LONG).show();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                Log.d(TAG,error);
+                Log.d(TAG, error);
             }
         }
     }

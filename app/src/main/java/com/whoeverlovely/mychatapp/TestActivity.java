@@ -21,7 +21,8 @@ public class TestActivity extends AppCompatActivity {
 
         testTextView = (TextView)findViewById(R.id.test_textview);
 
-        SharedPreferences shared_preference = getSharedPreferences(getString(R.string.default_shared_preference),MODE_PRIVATE);
+        /*SharedPreferences shared_preference = getSharedPreferences(getString(R.string.default_shared_preference),MODE_PRIVATE);*/
+        SharedPreferences shared_preference = getSharedPreferences(getString(R.string.user_key),MODE_PRIVATE);
         Map<String, ?> defaultPrefs = shared_preference.getAll();
         Log.d(TAG,"default_shared_preference");
         for (String key : defaultPrefs.keySet()) {

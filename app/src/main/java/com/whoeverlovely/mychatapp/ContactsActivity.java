@@ -1,5 +1,6 @@
 package com.whoeverlovely.mychatapp;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -8,11 +9,13 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 
+import com.google.common.base.Strings;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class ContactsActivity extends AppCompatActivity implements ContactListAdapter.ContactListAdapterOnClickHandler{
+public class ContactsActivity extends AppCompatActivity implements ContactListAdapter.ContactItemClickHandler{
 
     final private static String TAG = "ContactsActivity";
 
@@ -28,17 +31,18 @@ public class ContactsActivity extends AppCompatActivity implements ContactListAd
 
         user_key = getSharedPreferences(getString(R.string.user_key), MODE_PRIVATE);
 
-        contactListRecyclerView = (RecyclerView)findViewById(R.id.contact_list);
-        LinearLayoutManager layoutManager
+        contactListRecyclerView = findViewById(R.id.contact_list);
+        RecyclerView.LayoutManager layoutManager
                 = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         contactListRecyclerView.setLayoutManager(layoutManager);
         contactListRecyclerView.setHasFixedSize(true);
+
         contactListAdapter = new ContactListAdapter(this);
         contactListRecyclerView.setAdapter(contactListAdapter);
-        contactListRecyclerView.setVisibility(View.VISIBLE);
 
         List<Contact> contactList = initContactList();
         contactListAdapter.setContactData(contactList);
+
     }
 
     private List<Contact> initContactList() {
@@ -52,7 +56,10 @@ public class ContactsActivity extends AppCompatActivity implements ContactListAd
             if(key.contains("_AES")) {
                 encryptedAESKey = (String)prefs.get(key);
                 userId = key.substring(0,key.indexOf("_AES"));
+
                 userName = user_key.getString(userId+"_NAME",null);
+                if(Strings.isNullOrEmpty(userName))
+                    userName = userId;
 
                 contact = new Contact();
                 contact.setUserId(userId);
@@ -69,6 +76,8 @@ public class ContactsActivity extends AppCompatActivity implements ContactListAd
 
     @Override
     public void onClick(Contact contact) {
-
+        Intent intent = new Intent(this,ChatBoxActivity.class);
+        intent.putExtra("contact", contact);
+        startActivity(intent);
     }
 }

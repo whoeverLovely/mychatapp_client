@@ -79,7 +79,11 @@
         <activity android:name=".SignUpActivity" />
         <activity android:name=".ChatBoxActivity" />
         <activity android:name=".TestActivity" />
-        <activity android:name=".ContactsActivity"></activity>
+        <activity android:name=".ContactsActivity" />
+        <activity android:name=".ListTestActivity">
+
+        </activity>
+        <activity android:name=".ListTestDetailActivity" />
     </application>
 
 </manifest>
