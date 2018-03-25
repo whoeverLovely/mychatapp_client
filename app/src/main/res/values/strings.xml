@@ -19,8 +19,7 @@
     <string name="wrong_repeat_password">Two passwords don\'t match!</string>
     <string name="too_short_password">Password must be at least 6 numbers/characters!</string>
     <string name="signup_success">Your account has been created successfully!</string>
-    <string name="default_shared_preference">shared_preference</string>
-    <string name="user_key">user_key</string>
+    <!--<string name="user_key">user_key</string>-->
     <string name="my_private_key">my_private_key</string>
     <string name="my_public_key">my_public_key</string>
 

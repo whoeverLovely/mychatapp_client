@@ -1,9 +1,16 @@
-package com.whoeverlovely.mychatapp;
+package com.whoeverlovely.mychatapp.Util.Security;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.util.Base64;
 import android.util.Log;
+
+import com.whoeverlovely.mychatapp.R;
+import com.whoeverlovely.mychatapp.data.ChatAppDBContract;
+import com.whoeverlovely.mychatapp.data.ChatAppDBHelper;
 
 import org.keyczar.AesKey;
 import org.keyczar.Crypter;
@@ -29,12 +36,10 @@ public class AESKeyczarUtil {
 
     public byte[] retrieveAESKey(String userId) {
 
-        Log.d(TAG,"retrieveAESKey userId: " + userId);
-        SharedPreferences user_key = context.getSharedPreferences(context.getString(R.string.user_key), MODE_PRIVATE);
-        String encryptedAESKey = user_key.getString(userId+"_AES", null);
-        Log.d(TAG, "encryptedAESKey " + encryptedAESKey);
+        SQLiteDatabase db = new ChatAppDBHelper(context).getReadableDatabase();
+        String encryptedAESKey = ChatAppDBHelper.retrieveContactWithUserId(db, userId, ChatAppDBContract.ContactEntry.COLUMN_AES_KEY);
+
         String decryptedAESKey = AESKeyStoreUtil.decryptAESKeyStore(encryptedAESKey);
-        Log.d(TAG, "retrieve AES key from shared preference and decrypt: " + decryptedAESKey);
         return Base64.decode(decryptedAESKey, Base64.DEFAULT);
 
     }

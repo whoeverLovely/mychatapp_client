@@ -1,12 +1,14 @@
-package com.whoeverlovely.mychatapp;
+package com.whoeverlovely.mychatapp.Util.Security;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.util.Base64;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.google.common.base.Strings;
+import com.whoeverlovely.mychatapp.R;
+import com.whoeverlovely.mychatapp.Util.Security.AESKeyStoreUtil;
 
 import org.keyczar.DefaultKeyType;
 import org.keyczar.KeyMetadata;
@@ -19,11 +21,6 @@ import org.keyczar.enums.RsaPadding;
 import org.keyczar.exceptions.KeyczarException;
 import org.keyczar.interfaces.KeyczarReader;
 import org.keyczar.keyparams.RsaKeyParameters;
-
-import java.security.NoSuchAlgorithmException;
-
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
 
 
 /**
@@ -41,7 +38,7 @@ public class MyKeyczarReader implements KeyczarReader {
         KeyVersion v = new KeyVersion(0, KeyStatus.PRIMARY, true);
         meta.addVersion(v);
 
-        SharedPreferences sharedPreferences = context.getSharedPreferences(context.getString(R.string.default_shared_preference), Context.MODE_PRIVATE);
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         String encryptedPrivateKey = sharedPreferences.getString(context.getString(R.string.my_private_key), null);
         if (Strings.isNullOrEmpty(encryptedPrivateKey)) {
             Log.i(getClass().getSimpleName(), "No stored my key. Creating new one.");
@@ -79,7 +76,7 @@ public class MyKeyczarReader implements KeyczarReader {
             });
 
             //save encrypted private key and public key in default shared preference
-            SharedPreferences sharedPreferences = context.getSharedPreferences(context.getString(R.string.default_shared_preference), Context.MODE_PRIVATE);
+            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
             if (!sharedPreferences.contains(context.getString(R.string.my_private_key))) {
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putString(context.getString(R.string.my_private_key), AESKeyStoreUtil.encryptAESKeyStore(privateKey.toString()));

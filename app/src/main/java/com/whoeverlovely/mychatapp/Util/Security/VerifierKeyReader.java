@@ -1,10 +1,11 @@
-package com.whoeverlovely.mychatapp;
+package com.whoeverlovely.mychatapp.Util.Security;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.google.common.base.Strings;
+import com.whoeverlovely.mychatapp.R;
 
 import org.keyczar.DefaultKeyType;
 import org.keyczar.KeyMetadata;
@@ -31,7 +32,7 @@ public class VerifierKeyReader implements KeyczarReader {
         meta.addVersion(v);
     }
 
-    public static VerifierKeyReader loadFromSharedPreference(Context context, String userId) {
+    /*public static VerifierKeyReader loadFromSharedPreference(Context context, String userId) {
         SharedPreferences user_key = context.getSharedPreferences(context.getString(R.string.user_key), Context.MODE_PRIVATE);
         String publicKey = user_key.getString(userId, null);
 
@@ -48,7 +49,7 @@ public class VerifierKeyReader implements KeyczarReader {
 
         Log.i(FriendKeyczarReader.class.getSimpleName(), "No saved friend key loaded.");
         return null;
-    }
+    }*/
 
     @Override
     public String getKey(int i) throws KeyczarException {

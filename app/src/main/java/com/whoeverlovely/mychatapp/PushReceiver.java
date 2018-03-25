@@ -1,20 +1,24 @@
 package com.whoeverlovely.mychatapp;
 
-import android.app.PendingIntent;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.content.Context;
-import android.media.RingtoneManager;
-import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.support.v4.app.NotificationCompat;
+import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.whoeverlovely.mychatapp.Util.Security.AESKeyStoreUtil;
+import com.whoeverlovely.mychatapp.Util.Security.AESKeyczarUtil;
+import com.whoeverlovely.mychatapp.Util.Security.MyKeyczarReader;
+import com.whoeverlovely.mychatapp.Util.Security.VerifierKeyReader;
+import com.whoeverlovely.mychatapp.data.ChatAppDBContract;
+import com.whoeverlovely.mychatapp.data.ChatAppDBHelper;
+
 import org.keyczar.Crypter;
 import org.keyczar.DefaultKeyType;
 import org.keyczar.RsaPublicKey;
@@ -45,7 +49,8 @@ public class PushReceiver extends BroadcastReceiver {
             String encryptedKey = intent.getStringExtra("key");
             String senderId = intent.getStringExtra("from");
             String signature = intent.getStringExtra("signature");
-            SharedPreferences user_key = context.getSharedPreferences(context.getString(R.string.user_key), Context.MODE_PRIVATE);
+
+            SQLiteDatabase db = new ChatAppDBHelper(context).getWritableDatabase();
 
             try {
                 //decrypt received key and retrieve key and signature
@@ -54,19 +59,22 @@ public class PushReceiver extends BroadcastReceiver {
                 Log.d(getClass().getSimpleName(), "received aes key: " + key);
 
                 //verify signature against key
-                String senderPubKey = user_key.getString(senderId,null);
+                String senderPubKey = ChatAppDBHelper.retrieveContactWithUserId(db, senderId, ChatAppDBContract.ContactEntry.COLUMN_PUBLIC_KEY);
                 RsaPublicKey senderRsaPubkey = (RsaPublicKey) DefaultKeyType.RSA_PUB.getBuilder().read(senderPubKey);
                 VerifierKeyReader verifierReader = new VerifierKeyReader(senderRsaPubkey);
                 Verifier verifier = new Verifier(verifierReader);
                 boolean verified = verifier.verify(key, signature);
                 Log.d(TAG, "key signature verified: " + String.valueOf(verified));
 
-                //save userId_AES key in user_key sharedPreference, and delete public key
+                //save userId_AES key to table Contact
                 if(verified) {
-                    SharedPreferences.Editor editor = user_key.edit();
-                    editor.putString(senderId + "_AES", AESKeyStoreUtil.encryptAESKeyStore(key));
-                    editor.remove(senderId);
-                    editor.apply();
+                    ContentValues cv = new ContentValues();
+                    cv.put(ChatAppDBContract.ContactEntry.COLUMN_AES_KEY, AESKeyStoreUtil.encryptAESKeyStore(key));
+                    db.update(ChatAppDBContract.ContactEntry.TABLE_NAME,
+                            cv,
+                            ChatAppDBContract.ContactEntry.COLUMN_USER_ID + "=" + Integer.parseInt(senderId),
+                            null);
+
                 }
 
             } catch (KeyczarException e) {
@@ -82,6 +90,17 @@ public class PushReceiver extends BroadcastReceiver {
 
             String decryptedMsgContent = new AESKeyczarUtil(context).decrypt(senderId, encryptedMesgContent);
             Log.d(TAG, "decryptedMsgContent: " + decryptedMsgContent);
+
+            // save message to table message, status=>10
+            ContentValues cv = new ContentValues();
+            cv.put(ChatAppDBContract.MessageEntry.COLUMN_MESSAGE_CONTENT, decryptedMsgContent);
+            cv.put(ChatAppDBContract.MessageEntry.COLUMN_SENDER_ID, Integer.parseInt(senderId));
+            cv.put(ChatAppDBContract.MessageEntry.COLUMN_RECEIVER_ID, Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(context).getString("myUserId", null)));
+            cv.put(ChatAppDBContract.MessageEntry.COLUMN_STATUS, 10);
+            ChatAppDBHelper dbHelper = new ChatAppDBHelper(context);
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            db.insert(ChatAppDBContract.MessageEntry.TABLE_NAME,null,cv);
+
             Log.d(TAG, "create intent name: " + senderId);
             Intent chatBoxIntent = new Intent(senderId);
             // You can also include some extra data.

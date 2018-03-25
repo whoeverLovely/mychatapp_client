@@ -1,4 +1,4 @@
-package com.whoeverlovely.mychatapp;
+package com.whoeverlovely.mychatapp.Util.Security;
 
 import org.keyczar.DefaultKeyType;
 import org.keyczar.KeyMetadata;

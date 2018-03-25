@@ -77,13 +77,16 @@
 
         <!-- End Pushy Declarations -->
         <activity android:name=".SignUpActivity" />
-        <activity android:name=".ChatBoxActivity" />
+        <activity android:name=".ChatBoxActivity"
+            android:parentActivityName=".ContactsActivity"/>
         <activity android:name=".TestActivity" />
         <activity android:name=".ContactsActivity" />
-        <activity android:name=".ListTestActivity">
 
-        </activity>
-        <activity android:name=".ListTestDetailActivity" />
+        <provider
+            android:authorities="com.whoeverlovely.mychatapp"
+            android:name="com.whoeverlovely.mychatapp.data.ChatAppContentProvider"
+            android:exported="false" />
+
     </application>
 
 </manifest>

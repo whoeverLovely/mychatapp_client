@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,6 +14,10 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.whoeverlovely.mychatapp.Util.NetworkUtil;
+import com.whoeverlovely.mychatapp.Util.Security.AESKeyStoreUtil;
+import com.whoeverlovely.mychatapp.Util.Security.MyKeyczarReader;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,18 +36,18 @@ public class SignUpActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
 
-        mLoadingIndicator = (ProgressBar) findViewById(R.id.signup_loading_indicator);
+        mLoadingIndicator = findViewById(R.id.signup_loading_indicator);
 
         Button signUpButton = findViewById(R.id.signup_submit);
         signUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                EditText passwordEditText = (EditText) findViewById(R.id.signup_password);
-                EditText repeatPasswordEditText = (EditText) findViewById(R.id.signup_repeat_password);
+                EditText passwordEditText = findViewById(R.id.signup_password);
+                EditText repeatPasswordEditText = findViewById(R.id.signup_repeat_password);
                 String password = passwordEditText.getText().toString();
                 String repeatPassword = repeatPasswordEditText.getText().toString();
 
-                errorTextView = (TextView) findViewById(R.id.signup_error);
+                errorTextView = findViewById(R.id.signup_error);
                 if (password.trim().length() == 0)
                     errorTextView.setText(getString(R.string.empty_password));
                 else if (repeatPassword.trim().length() == 0 || !password.equals(repeatPassword))
@@ -116,7 +121,7 @@ public class SignUpActivity extends AppCompatActivity {
                     String chat_token = jsonObject.getString("chat_token");
                     chat_token = AESKeyStoreUtil.encryptAESKeyStore(chat_token);
 
-                    SharedPreferences.Editor editor = context.getSharedPreferences(getString(R.string.default_shared_preference), MODE_PRIVATE).edit();
+                    SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
                     editor.putString("myUserId", userId);
                     editor.putString("chat_token", chat_token);
                     editor.apply();

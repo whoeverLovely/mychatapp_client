@@ -2,6 +2,8 @@ package com.whoeverlovely.mychatapp;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -10,6 +12,8 @@ import android.util.Log;
 import android.view.View;
 
 import com.google.common.base.Strings;
+import com.whoeverlovely.mychatapp.data.ChatAppDBContract;
+import com.whoeverlovely.mychatapp.data.ChatAppDBHelper;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -22,14 +26,11 @@ public class ContactsActivity extends AppCompatActivity implements ContactListAd
     private RecyclerView contactListRecyclerView;
     private ContactListAdapter contactListAdapter;
 
-    private SharedPreferences user_key;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_contacts);
-
-        user_key = getSharedPreferences(getString(R.string.user_key), MODE_PRIVATE);
 
         contactListRecyclerView = findViewById(R.id.contact_list);
         RecyclerView.LayoutManager layoutManager
@@ -46,18 +47,30 @@ public class ContactsActivity extends AppCompatActivity implements ContactListAd
     }
 
     private List<Contact> initContactList() {
+        SQLiteDatabase db = new ChatAppDBHelper(this).getReadableDatabase();
+        Cursor cursor = db.query(ChatAppDBContract.ContactEntry.TABLE_NAME,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null);
+        int count = cursor.getCount();
+        //TODO preference: orderBy
+
         List<Contact> contactList = new LinkedList<Contact>();
-        Map<String, ?> prefs = user_key.getAll();
         Contact contact;
         String userId;
         String userName;
         String encryptedAESKey;
-        for (String key : prefs.keySet()) {
-            if(key.contains("_AES")) {
-                encryptedAESKey = (String)prefs.get(key);
-                userId = key.substring(0,key.indexOf("_AES"));
+        for (int i = 0; i < count; i++) {
+            //display all contacts which have AESKey value
+            cursor.moveToPosition(i);
+            encryptedAESKey = cursor.getString(cursor.getColumnIndex(ChatAppDBContract.ContactEntry.COLUMN_AES_KEY));
+            if(!Strings.isNullOrEmpty(encryptedAESKey)) {
+                userId = cursor.getString(cursor.getColumnIndex(ChatAppDBContract.ContactEntry.COLUMN_USER_ID));
+                userName = cursor.getString(cursor.getColumnIndex(ChatAppDBContract.ContactEntry.COLUMN_NAME));
 
-                userName = user_key.getString(userId+"_NAME",null);
                 if(Strings.isNullOrEmpty(userName))
                     userName = userId;
 

@@ -1,10 +1,13 @@
-package com.whoeverlovely.mychatapp;
+package com.whoeverlovely.mychatapp.Util.Security;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.google.common.base.Strings;
+import com.whoeverlovely.mychatapp.R;
+import com.whoeverlovely.mychatapp.Util.Security.AESKeyStoreUtil;
 
 import org.keyczar.DefaultKeyType;
 import org.keyczar.KeyMetadata;
@@ -31,7 +34,7 @@ public class SignKeyReader implements KeyczarReader{
         KeyVersion v = new KeyVersion(0, KeyStatus.PRIMARY, true);
         meta.addVersion(v);
 
-        SharedPreferences sharedPreferences = context.getSharedPreferences(context.getString(R.string.default_shared_preference), Context.MODE_PRIVATE);
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         String encryptedPrivateKey = sharedPreferences.getString(context.getString(R.string.my_private_key), null);
         if (Strings.isNullOrEmpty(encryptedPrivateKey)) {
             Log.i(getClass().getSimpleName(), "No stored my key.");

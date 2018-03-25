@@ -12,7 +12,7 @@
         android:gravity="center"
         tools:text="Aha"/>
 
-    <ScrollView
+    <!--<ScrollView
         android:id="@+id/SCROLLER_ID"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
@@ -25,7 +25,14 @@
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             tools:text="Aha: this is a test message."/>
-    </ScrollView>
+    </ScrollView>-->
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/msg_list_recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="@dimen/activity_horizontal_margin"
+        android:layout_below="@+id/chatbox_friendName">
+    </android.support.v7.widget.RecyclerView>
 
     <EditText
         android:id="@+id/chatbox_textEditor"
@@ -33,7 +40,6 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_marginStart="@dimen/activity_horizontal_margin"
-        android:layout_marginLeft="@dimen/activity_horizontal_margin"
         tools:text="i want to send msg"/>
 
     <Button

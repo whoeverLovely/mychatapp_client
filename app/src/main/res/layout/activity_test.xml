@@ -10,6 +10,8 @@
         android:id="@+id/test_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:maxLines = "9999"
+        android:scrollbars = "vertical"
         tools:text="hello world"/>
 
 </android.support.constraint.ConstraintLayout>

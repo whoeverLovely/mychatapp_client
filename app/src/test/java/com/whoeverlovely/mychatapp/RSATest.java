@@ -2,11 +2,11 @@ package com.whoeverlovely.mychatapp;
 
 import android.util.Log;
 
+import com.whoeverlovely.mychatapp.Util.Security.RSAKeyStoreUtil;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
 /**
  * Created by yan on 2/12/18.
