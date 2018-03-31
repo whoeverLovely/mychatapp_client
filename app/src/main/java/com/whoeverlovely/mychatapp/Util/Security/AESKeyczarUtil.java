@@ -1,5 +1,6 @@
 package com.whoeverlovely.mychatapp.Util.Security;
 
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -34,17 +35,23 @@ public class AESKeyczarUtil {
         this.context = context;
     }
 
-    public byte[] retrieveAESKey(String userId) {
+    public byte[] retrieveAESKey(int userId) {
 
-        SQLiteDatabase db = new ChatAppDBHelper(context).getReadableDatabase();
-        String encryptedAESKey = ChatAppDBHelper.retrieveContactWithUserId(db, userId, ChatAppDBContract.ContactEntry.COLUMN_AES_KEY);
+        Cursor encryptedAESKey = context.getContentResolver().query(ContentUris.withAppendedId(ChatAppDBContract.ContactEntry.CONTENT_URI, userId),
+                new String[] {ChatAppDBContract.ContactEntry.COLUMN_AES_KEY},
+                null,
+                null,
+                null);
 
-        String decryptedAESKey = AESKeyStoreUtil.decryptAESKeyStore(encryptedAESKey);
-        return Base64.decode(decryptedAESKey, Base64.DEFAULT);
+        if(encryptedAESKey.moveToFirst()) {
+            String decryptedAESKey = AESKeyStoreUtil.decryptAESKeyStore(encryptedAESKey.getString(0));
+            return Base64.decode(decryptedAESKey, Base64.DEFAULT);
+        } else
+            return null;
 
     }
 
-    public String encrypt(String userId, String plainText) {
+    public String encrypt(int userId, String plainText) {
 
         byte[] aesKeyByte = retrieveAESKey(userId);
         String cipherText = null;
@@ -60,7 +67,7 @@ public class AESKeyczarUtil {
         return cipherText;
     }
 
-    public String decrypt(String userId, String encryptedText) {
+    public String decrypt(int userId, String encryptedText) {
 
         byte[] aesKeyByte = retrieveAESKey(userId);
         String plainText = null;

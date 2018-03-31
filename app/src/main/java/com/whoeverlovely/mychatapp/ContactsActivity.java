@@ -1,30 +1,25 @@
 package com.whoeverlovely.mychatapp;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.View;
 
-import com.google.common.base.Strings;
 import com.whoeverlovely.mychatapp.data.ChatAppDBContract;
-import com.whoeverlovely.mychatapp.data.ChatAppDBHelper;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
-public class ContactsActivity extends AppCompatActivity implements ContactListAdapter.ContactItemClickHandler{
+public class ContactsActivity extends AppCompatActivity implements ContactListAdapter.ContactItemClickHandler, LoaderManager.LoaderCallbacks<Cursor> {
 
     final private static String TAG = "ContactsActivity";
 
     private RecyclerView contactListRecyclerView;
     private ContactListAdapter contactListAdapter;
+    final private static int ID_CONTACT_LOADER = 1;
 
 
     @Override
@@ -41,56 +36,44 @@ public class ContactsActivity extends AppCompatActivity implements ContactListAd
         contactListAdapter = new ContactListAdapter(this);
         contactListRecyclerView.setAdapter(contactListAdapter);
 
-        List<Contact> contactList = initContactList();
-        contactListAdapter.setContactData(contactList);
-
-    }
-
-    private List<Contact> initContactList() {
-        SQLiteDatabase db = new ChatAppDBHelper(this).getReadableDatabase();
-        Cursor cursor = db.query(ChatAppDBContract.ContactEntry.TABLE_NAME,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null);
-        int count = cursor.getCount();
-        //TODO preference: orderBy
-
-        List<Contact> contactList = new LinkedList<Contact>();
-        Contact contact;
-        String userId;
-        String userName;
-        String encryptedAESKey;
-        for (int i = 0; i < count; i++) {
-            //display all contacts which have AESKey value
-            cursor.moveToPosition(i);
-            encryptedAESKey = cursor.getString(cursor.getColumnIndex(ChatAppDBContract.ContactEntry.COLUMN_AES_KEY));
-            if(!Strings.isNullOrEmpty(encryptedAESKey)) {
-                userId = cursor.getString(cursor.getColumnIndex(ChatAppDBContract.ContactEntry.COLUMN_USER_ID));
-                userName = cursor.getString(cursor.getColumnIndex(ChatAppDBContract.ContactEntry.COLUMN_NAME));
-
-                if(Strings.isNullOrEmpty(userName))
-                    userName = userId;
-
-                contact = new Contact();
-                contact.setUserId(userId);
-                contact.setName(userName);
-                contact.setEncryptedAESKey(encryptedAESKey);
-
-                contactList.add(contact);
-            }
-        }
-
-        Log.d(TAG, "contactList size: " + contactList.size());
-        return contactList;
+        getSupportLoaderManager().initLoader(ID_CONTACT_LOADER, null, this);
     }
 
     @Override
-    public void onClick(Contact contact) {
-        Intent intent = new Intent(this,ChatBoxActivity.class);
-        intent.putExtra("contact", contact);
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        switch (id) {
+            case ID_CONTACT_LOADER:
+
+                //Return a contact list(userId and name) of all contacts whose AES is not null AND !=''
+                return new CursorLoader(this,
+                        ChatAppDBContract.ContactEntry.CONTENT_URI,
+                        new String[]{ChatAppDBContract.ContactEntry.COLUMN_NAME, ChatAppDBContract.ContactEntry.COLUMN_USER_ID},
+                        ChatAppDBContract.ContactEntry.COLUMN_AES_KEY + " is not null AND " + ChatAppDBContract.ContactEntry.COLUMN_AES_KEY + " != " + "?",
+                        new String[] {""},
+                        null);
+
+            default:
+                throw new RuntimeException("Unsupported loader id: " + id);
+        }
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        contactListAdapter.swapCursor(data);
+        Log.d(TAG, String.valueOf(data.getCount()));
+
+
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        contactListAdapter.swapCursor(null);
+    }
+
+    @Override
+    public void onClick(int userId) {
+        Intent intent = new Intent(this, ChatBoxActivity.class);
+        intent.putExtra("userId", userId);
         startActivity(intent);
     }
 }

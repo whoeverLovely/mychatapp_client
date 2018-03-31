@@ -1,11 +1,14 @@
 package com.whoeverlovely.mychatapp;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import com.whoeverlovely.mychatapp.data.ChatAppDBContract;
 
 import java.util.List;
 
@@ -16,11 +19,16 @@ import java.util.List;
 public class ContactListAdapter extends RecyclerView.Adapter<ContactListAdapter.ContactItemViewHolder> {
 
     private static final String TAG = "ContactListAdapter";
-    private List<Contact> contactList;
     private ContactItemClickHandler itemClickHandler;
+    private Cursor cursor;
 
     public ContactListAdapter(ContactItemClickHandler itemClickHandler) {
         this.itemClickHandler = itemClickHandler;
+    }
+
+    public void swapCursor(Cursor cursor) {
+        this.cursor = cursor;
+        notifyDataSetChanged();
     }
 
     @Override
@@ -36,25 +44,24 @@ public class ContactListAdapter extends RecyclerView.Adapter<ContactListAdapter.
 
     @Override
     public void onBindViewHolder(ContactItemViewHolder holder, int position) {
-        Contact contact = contactList.get(position);
-        String name = contact.getName();
-        String userId = contact.getUserId();
+
+        if(!cursor.moveToPosition(position))
+            return;
+
+        String name = cursor.getString(cursor.getColumnIndex(ChatAppDBContract.ContactEntry.COLUMN_NAME));
+        int userId = cursor.getInt(cursor.getColumnIndex(ChatAppDBContract.ContactEntry.COLUMN_USER_ID));
         if (name != null)
             holder.ContactItemTextView.setText(name);
         else
-            holder.ContactItemTextView.setText(userId);
-
+            holder.ContactItemTextView.setText(Integer.toString(userId));
     }
 
     @Override
     public int getItemCount() {
-        if (null == contactList) return 0;
-        return contactList.size();
-    }
+        if(cursor == null)
+            return 0;
 
-    public void setContactData(List<Contact> contactList) {
-        this.contactList = contactList;
-        notifyDataSetChanged();
+        return cursor.getCount();
     }
 
     class ContactItemViewHolder extends RecyclerView.ViewHolder
@@ -71,12 +78,13 @@ public class ContactListAdapter extends RecyclerView.Adapter<ContactListAdapter.
         @Override
         public void onClick(View view) {
             int adapterPosition = getAdapterPosition();
-            Contact contact = contactList.get(adapterPosition);
-            itemClickHandler.onClick(contact);
+            cursor.moveToPosition(adapterPosition);
+            int userId = cursor.getInt(cursor.getColumnIndex(ChatAppDBContract.ContactEntry.COLUMN_USER_ID));
+            itemClickHandler.onClick(userId);
         }
     }
 
     public interface ContactItemClickHandler {
-        void onClick(Contact contact);
+        void onClick(int userId);
     }
 }

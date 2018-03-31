@@ -10,7 +10,10 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.VIBRATE" />
 
-    <!-- End Pushy Permissions -->
+    <!-- To auto-complete the email text field in the login form with the user's emails -->
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.READ_PROFILE" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" /> <!-- End Pushy Permissions -->
     <!-- To auto-complete the email text field in the login form with the user's emails -->
     <!--
 <uses-permission android:name="android.permission.GET_ACCOUNTS" />
@@ -77,16 +80,21 @@
 
         <!-- End Pushy Declarations -->
         <activity android:name=".SignUpActivity" />
-        <activity android:name=".ChatBoxActivity"
-            android:parentActivityName=".ContactsActivity"/>
+        <activity
+            android:name=".ChatBoxActivity"
+            android:parentActivityName=".ContactsActivity" />
         <activity android:name=".TestActivity" />
         <activity android:name=".ContactsActivity" />
 
         <provider
+            android:name=".data.ChatAppContentProvider"
             android:authorities="com.whoeverlovely.mychatapp"
-            android:name="com.whoeverlovely.mychatapp.data.ChatAppContentProvider"
             android:exported="false" />
 
+        <activity android:name=".ContactSettingActivity" />
+        <activity
+            android:name=".LoginActivity"
+            android:label="@string/title_activity_login"></activity>
     </application>
 
 </manifest>

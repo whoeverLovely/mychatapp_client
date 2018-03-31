@@ -37,13 +37,13 @@ public class ChatBoxActivity extends AppCompatActivity implements LoaderManager.
 
     final private static String TAG = "ChatBoxActivity'";
     final private static int ID_MESSAGE_LOADER = 1;
+    final private static int ID_CONTACT_LOADER = 2;
 
     private EditText inputEditText;
-    private RecyclerView messageListRecyclerView;
     private MessageAdapter adapter;
 
-    private String friendId;
-    private String friendName;
+    private int friendId;
+    private Cursor friendCursor;
     private String myId;
 
 
@@ -56,21 +56,21 @@ public class ChatBoxActivity extends AppCompatActivity implements LoaderManager.
         inputEditText = findViewById(R.id.chatbox_textEditor);
 
         Intent intent = getIntent();
-        Contact contact = (Contact) intent.getSerializableExtra("contact");
-        friendId = contact.getUserId();
-        friendName = contact.getName();
-        Log.d(TAG, "Launched chatbox for " + friendName + "_" + friendId);
-        setTitle(friendName);
+        friendId = intent.getIntExtra("userId", 0);
+        if (friendId == 0)
+            throw new RuntimeException("Can't get userId from intent");
+
+        getSupportLoaderManager().initLoader(ID_CONTACT_LOADER, null, this);
 
         myId = PreferenceManager.getDefaultSharedPreferences(this).getString("myUserId", null);
 
         adapter = new MessageAdapter(this);
-        messageListRecyclerView = findViewById(R.id.msg_list_recyclerView);
+        RecyclerView messageListRecyclerView = findViewById(R.id.msg_list_recyclerView);
         messageListRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         messageListRecyclerView.setAdapter(adapter);
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
-                new IntentFilter(friendId));
+                new IntentFilter(Integer.toString(friendId)));
 
         Button sendButton = findViewById(R.id.chatbox_sendButton);
         sendButton.setOnClickListener(new View.OnClickListener() {
@@ -84,11 +84,13 @@ public class ChatBoxActivity extends AppCompatActivity implements LoaderManager.
             }
         });
 
+
         getSupportLoaderManager().initLoader(ID_MESSAGE_LOADER, null, this);
     }
 
     @Override
     public android.support.v4.content.Loader<Cursor> onCreateLoader(int id, Bundle args) {
+
         switch (id) {
             case ID_MESSAGE_LOADER:
                 return new CursorLoader(this,
@@ -99,6 +101,17 @@ public class ChatBoxActivity extends AppCompatActivity implements LoaderManager.
                         null,
                         ChatAppDBContract.MessageEntry.COLUMN_TIMESTAMP);
 
+            case ID_CONTACT_LOADER:
+                Log.d(TAG, "contact loader started");
+                Log.d(TAG, "friend id: " + friendId);
+
+                return new CursorLoader(this,
+                        ContentUris.withAppendedId(ChatAppDBContract.ContactEntry.CONTENT_URI, friendId),
+                        null,
+                        null,
+                        null,
+                        null);
+
             default:
                 throw new RuntimeException("Unsupported loader id: " + id);
         }
@@ -106,17 +119,50 @@ public class ChatBoxActivity extends AppCompatActivity implements LoaderManager.
 
     @Override
     public void onLoadFinished(android.support.v4.content.Loader<Cursor> loader, Cursor data) {
-        Log.d(TAG, "onLoadFinished cursor: " + data.getCount());
-        adapter.swapCursor(data);
+        int loaderId = loader.getId();
+        Log.d(TAG, "loader id in onLoadFinished: " + loaderId);
+
+        switch (loaderId) {
+            case ID_MESSAGE_LOADER:
+                Log.d(TAG, "onLoadFinished cursor: " + data.getCount());
+                adapter.swapCursor(data);
+                break;
+
+            case ID_CONTACT_LOADER:
+                Log.d(TAG, "data count: " + data.getCount());
+
+                friendCursor = data;
+                Log.d(TAG, "onLoadFinished contact cursor: " + data.getCount());
+
+                if (!friendCursor.moveToFirst())
+                    throw new RuntimeException("The contact doesn't exist.");
+
+                for (int columnIndex = 0; columnIndex < friendCursor.getColumnCount(); columnIndex++) {
+                    Log.d(TAG, friendCursor.getColumnName(columnIndex) + ": " + friendCursor.getString(columnIndex));
+                }
+
+                setTitle(friendCursor.getString(friendCursor.getColumnIndex(ChatAppDBContract.ContactEntry.COLUMN_NAME)));
+                break;
+
+            default:
+                throw new RuntimeException("Unsupported loader id: " + loaderId);
+        }
+
     }
 
     @Override
     public void onLoaderReset(android.support.v4.content.Loader<Cursor> loader) {
-        adapter.swapCursor(null);
+        int loaderId = loader.getId();
+        switch (loaderId) {
+            case ID_MESSAGE_LOADER:
+                adapter.swapCursor(null);
+
+            case ID_CONTACT_LOADER:
+                friendCursor = null;
+        }
     }
 
     public class SendMsgTask extends AsyncTask<String, Void, JSONObject> {
-        //TODO locally save friends' id and run background service to update friends' name when launching the app
         String url = getString(R.string.base_url) + "Forward";
         private Context context;
 
@@ -132,7 +178,7 @@ public class ChatBoxActivity extends AppCompatActivity implements LoaderManager.
             ContentValues cv = new ContentValues();
             cv.put(ChatAppDBContract.MessageEntry.COLUMN_MESSAGE_CONTENT, msgContent);
             cv.put(ChatAppDBContract.MessageEntry.COLUMN_SENDER_ID, Integer.parseInt(myId));
-            cv.put(ChatAppDBContract.MessageEntry.COLUMN_RECEIVER_ID, Integer.parseInt(friendId));
+            cv.put(ChatAppDBContract.MessageEntry.COLUMN_RECEIVER_ID, friendId);
             cv.put(ChatAppDBContract.MessageEntry.COLUMN_STATUS, 20);
 
             Uri uri = getContentResolver().insert(ChatAppDBContract.MessageEntry.CONTENT_URI,
@@ -151,11 +197,11 @@ public class ChatBoxActivity extends AppCompatActivity implements LoaderManager.
                 JSONObject param = new JSONObject();
                 param.put("userId", myId);
                 param.put("chat_token", AESKeyStoreUtil.decryptAESKeyStore(PreferenceManager.getDefaultSharedPreferences(context).getString("chat_token", null)));
-                param.put("receiverUserId", friendId);
+                param.put("receiverUserId", Integer.toString(friendId));
                 param.put("data", data.toString());
 
                 JSONObject result = NetworkUtil.executePost(url, param);
-                Log.d(TAG, "Sent message: " + msgContent + " to " + friendName);
+                Log.d(TAG, "Sent message: " + msgContent + " to " + friendCursor.getString(friendCursor.getColumnIndex(ChatAppDBContract.ContactEntry.COLUMN_NAME)));
 
                 //If no error received from server, pass the plain msgContent to onPostExecute
                 if (result == null) {
@@ -166,7 +212,7 @@ public class ChatBoxActivity extends AppCompatActivity implements LoaderManager.
                 } else
                     return result;
             } catch (JSONException e) {
-                Toast.makeText(context, e.toString(), Toast.LENGTH_LONG);
+                Toast.makeText(context, e.toString(), Toast.LENGTH_LONG).show();
                 e.printStackTrace();
             }
             return null;
@@ -196,7 +242,7 @@ public class ChatBoxActivity extends AppCompatActivity implements LoaderManager.
                         getSupportLoaderManager().restartLoader(ID_MESSAGE_LOADER, null, ChatBoxActivity.this);
                     } else {
                         String error = jsonObject.getString("error");
-                        Toast.makeText(ChatBoxActivity.this, error, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, error, Toast.LENGTH_SHORT).show();
                     }
 
                 } catch (JSONException e) {
@@ -213,9 +259,11 @@ public class ChatBoxActivity extends AppCompatActivity implements LoaderManager.
         @Override
         public void onReceive(Context context, Intent intent) {
 
-            String msgContent = intent.getStringExtra("decryptedMsgContent");
-            Log.d(TAG, "Got message: " + msgContent + " from " + friendName);
-            getSupportLoaderManager().restartLoader(ID_MESSAGE_LOADER, null, ChatBoxActivity.this);
+            String senderId = intent.getStringExtra("senderId");
+            Log.d(TAG, "Got message: " + " from " + senderId);
+
+            if (Integer.parseInt(senderId) == friendId)
+                getSupportLoaderManager().restartLoader(ID_MESSAGE_LOADER, null, ChatBoxActivity.this);
 
         }
     };

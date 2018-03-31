@@ -55,22 +55,4 @@ public class ChatAppDBHelper extends SQLiteOpenHelper {
         onCreate(db);
 
     }
-
-    public static String retrieveContactWithUserId (SQLiteDatabase db, String userId, String columnName) {
-        String[] columns = new String[] {columnName};
-        Cursor cursor = db.query(ChatAppDBContract.ContactEntry.TABLE_NAME,
-                columns,
-                ChatAppDBContract.ContactEntry.COLUMN_USER_ID + "=" + Integer.parseInt(userId),
-                null,
-                null,
-                null,
-                null);
-
-        if(cursor.moveToFirst()) {
-            String columnValue = cursor.getString(cursor.getColumnIndex(columnName));
-            return columnValue;
-        }
-
-        return null;
-    }
 }

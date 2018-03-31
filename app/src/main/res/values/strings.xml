@@ -23,12 +23,7 @@
     <string name="my_private_key">my_private_key</string>
     <string name="my_public_key">my_public_key</string>
 
-    <!--nexus-->
-    <!--<string name="friend_id">4</string>-->
-    <!--<string name="friend_name">moto</string>-->
-
-    <!--moto-->
-    <!--<string name="friend_id">3</string>-->
-    <!--<string name="friend_name">Samsung</string>-->
+    <string name="pref_name_title">Contact Name</string>
+    <string name="title_activity_login">Sign in</string>
 
 </resources>

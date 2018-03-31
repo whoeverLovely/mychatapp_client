@@ -18,6 +18,8 @@ import android.util.Log;
 
 public class ChatAppContentProvider extends ContentProvider {
 
+    public static final String TAG = "ChatAppContentProvider";
+
     public static final int ID_CONTACT = 100;
     public static final int ID_CONTACT_WITH_USERID = 101;
 
@@ -64,6 +66,7 @@ public class ChatAppContentProvider extends ContentProvider {
                 break;
 
             case ID_CONTACT_WITH_USERID:
+                Log.d(TAG, "CONTACT_WITH_USERID query started");
                 cursor = db.query(ChatAppDBContract.ContactEntry.TABLE_NAME,
                         projection,
                         ChatAppDBContract.ContactEntry.COLUMN_USER_ID + "=?",
@@ -87,7 +90,7 @@ public class ChatAppContentProvider extends ContentProvider {
                 cursor = db.query(ChatAppDBContract.MessageEntry.TABLE_NAME,
                         projection,
                         ChatAppDBContract.MessageEntry._ID + "=?",
-                        new String[] {uri.getLastPathSegment()},
+                        new String[]{uri.getLastPathSegment()},
                         null,
                         null,
                         sortOrder);
@@ -101,6 +104,12 @@ public class ChatAppContentProvider extends ContentProvider {
         return cursor;
     }
 
+    /**
+     *
+     * @param uri
+     * @param values
+     * @return the inserted URI
+     */
     @Nullable
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
@@ -137,11 +146,52 @@ public class ChatAppContentProvider extends ContentProvider {
         return returnedUri;
     }
 
+    /**
+     * @param uri
+     * @param selection
+     * @param selectionArgs
+     * @return the number of rows affected if a whereClause is passed in, 0 otherwise. To remove all rows and get a count pass "1" as the whereClause
+     */
     @Override
     public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
-        return 0;
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        if (selection == null)
+            selection = "1";
+
+        int match = uriMatcher.match(uri);
+        int returnedId = 0;
+        switch (match) {
+            case ID_CONTACT:
+                returnedId = db.delete(ChatAppDBContract.ContactEntry.TABLE_NAME,
+                        selection,
+                        selectionArgs);
+                break;
+
+            case ID_MESSAGE:
+                returnedId = db.delete(ChatAppDBContract.MessageEntry.TABLE_NAME,
+                        selection,
+                        selectionArgs);
+                break;
+
+            default:
+                throw new UnsupportedOperationException("Unknown URI: " + uri);
+
+        }
+
+        if (returnedId > 0)
+            getContext().getContentResolver().notifyChange(uri, null);
+
+        return returnedId;
     }
 
+    /**
+     *
+     * @param uri
+     * @param values
+     * @param selection
+     * @param selectionArgs
+     * @return the number of rows affected
+     */
     @Override
     public int update(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
@@ -169,7 +219,7 @@ public class ChatAppContentProvider extends ContentProvider {
                 throw new UnsupportedOperationException("Unknown URI: " + uri);
         }
 
-        if(returnedId > 0)
+        if (returnedId > 0)
             getContext().getContentResolver().notifyChange(uri, null);
 
         return returnedId;

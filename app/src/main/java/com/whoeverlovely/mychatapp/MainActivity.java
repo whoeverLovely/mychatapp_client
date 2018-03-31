@@ -1,6 +1,7 @@
 package com.whoeverlovely.mychatapp;
 
 import android.app.AlertDialog;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -49,7 +50,6 @@ public class MainActivity extends AppCompatActivity {
 
     final private static String TAG = "MainActivity";
 
-    SQLiteDatabase db;
     String myUserId;
 
     @Override
@@ -62,8 +62,6 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(this, SignUpActivity.class);
             startActivity(intent);
         }
-
-        db = new ChatAppDBHelper(this).getWritableDatabase();
 
         Pushy.listen(this);
     }
@@ -134,10 +132,11 @@ public class MainActivity extends AppCompatActivity {
 
         if (item.getItemId() == R.id.clear_data_item) {
             //clear both table message and table contact
-            String sql_delete_message = "delete from " + ChatAppDBContract.MessageEntry.TABLE_NAME;
-            String sql_delete_contact = "delete from " + ChatAppDBContract.ContactEntry.TABLE_NAME;
-            db.execSQL(sql_delete_contact);
-            db.execSQL(sql_delete_message);
+            int messageCount = getContentResolver().delete(ChatAppDBContract.MessageEntry.CONTENT_URI, null, null);
+            int contactCount = getContentResolver().delete(ChatAppDBContract.ContactEntry.CONTENT_URI, null, null);
+            Toast.makeText(this, "deleted message no.: " + messageCount, Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "deleted contact no.: " + contactCount, Toast.LENGTH_LONG).show();
+
         }
 
         return super.onOptionsItemSelected(item);
@@ -162,7 +161,7 @@ public class MainActivity extends AppCompatActivity {
                     ContentValues cv = new ContentValues();
                     cv.put(ChatAppDBContract.ContactEntry.COLUMN_USER_ID, Integer.parseInt(userId));
                     cv.put(ChatAppDBContract.ContactEntry.COLUMN_PUBLIC_KEY, publicKey);
-                    db.insert(ChatAppDBContract.ContactEntry.TABLE_NAME,null,cv);
+                    getContentResolver().insert(ChatAppDBContract.ContactEntry.CONTENT_URI, cv);
 
                     //if my user id is less than the other user, I create an AES key and send to the other user
                     if (myUserId.compareTo(userId) < 0)
@@ -189,7 +188,8 @@ public class MainActivity extends AppCompatActivity {
                                             // get user input and set it as NAME in table user
                                             ContentValues cv = new ContentValues();
                                             cv.put(ChatAppDBContract.ContactEntry.COLUMN_NAME, userInput.getText().toString());
-                                            db.update(ChatAppDBContract.ContactEntry.TABLE_NAME, cv, ChatAppDBContract.ContactEntry.COLUMN_USER_ID + "=" + Integer.parseInt(userId), null);
+                                            getContentResolver().update(ContentUris.withAppendedId(ChatAppDBContract.ContactEntry.CONTENT_URI, Long.parseLong(userId)),
+                                                    cv, null, null);
                                         }
                                     })
                             .setNegativeButton("Cancel",
@@ -236,7 +236,8 @@ public class MainActivity extends AppCompatActivity {
 
             ContentValues cv = new ContentValues();
             cv.put(ChatAppDBContract.ContactEntry.COLUMN_AES_KEY, AESKeyStoreUtil.encryptAESKeyStore(aesKey));
-            db.update(ChatAppDBContract.ContactEntry.TABLE_NAME, cv , ChatAppDBContract.ContactEntry.COLUMN_USER_ID + "=" + Integer.parseInt(userId), null);
+            getContentResolver().update(ContentUris.withAppendedId(ChatAppDBContract.ContactEntry.CONTENT_URI, Long.parseLong(userId)),
+                    cv, null, null);
 
             JSONObject data = null;
             try {
