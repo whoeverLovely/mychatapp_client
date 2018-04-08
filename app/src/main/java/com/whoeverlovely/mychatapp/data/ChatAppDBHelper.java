@@ -1,11 +1,22 @@
 package com.whoeverlovely.mychatapp.data;
 
+import android.app.AlertDialog;
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.support.v4.content.ContextCompat;
 import android.util.Base64;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.EditText;
 
+import com.google.common.base.Strings;
+import com.whoeverlovely.mychatapp.R;
 import com.whoeverlovely.mychatapp.Util.Security.AESKeyStoreUtil;
 
 /**
@@ -13,6 +24,8 @@ import com.whoeverlovely.mychatapp.Util.Security.AESKeyStoreUtil;
  */
 
 public class ChatAppDBHelper extends SQLiteOpenHelper {
+
+    final private static String TAG = "ChatAppDBHelper";
 
     // The database name
     private static final String DATABASE_NAME = "mychatapp.db";
@@ -54,5 +67,48 @@ public class ChatAppDBHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + ChatAppDBContract.ContactEntry.TABLE_NAME);
         onCreate(db);
 
+    }
+
+    public static void setUserNameWithAlertDialog(final Context context, final long userId) {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+
+        // get username_dialog.xml view
+        LayoutInflater inflater = LayoutInflater.from(context);
+        View promptsView = inflater.inflate(R.layout.username_dialog, null);
+
+        // set username_dialog.xml to alertdialog builder
+        alertDialogBuilder.setView(promptsView);
+
+        final EditText userInput = promptsView.findViewById(R.id.username_editText);
+
+        // set dialog message
+        alertDialogBuilder
+                .setCancelable(false)
+                .setPositiveButton("OK",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                // get user input and set it as NAME in table user if the input is not null
+                                String newName = userInput.getText().toString();
+                                if(!Strings.isNullOrEmpty(newName)) {
+                                    ContentValues cv = new ContentValues();
+                                    cv.put(ChatAppDBContract.ContactEntry.COLUMN_NAME, newName);
+                                    context.getContentResolver().update(ContentUris.withAppendedId(ChatAppDBContract.ContactEntry.CONTENT_URI, userId),
+                                            cv, null, null);
+                                    Log.d(TAG, "nick name has been updated.");
+                                }
+                            }
+                        })
+                .setNegativeButton("Cancel",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        });
+
+        // create alert dialog
+        AlertDialog alertDialog = alertDialogBuilder.create();
+
+        // show it
+        alertDialog.show();
     }
 }

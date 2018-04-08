@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@color/colorPrimaryLight"
     android:padding="16dp">
 
     <TextView
@@ -13,6 +14,10 @@
         android:layout_gravity="center_vertical|center_horizontal"
         android:fontFamily="monospace"
         android:textSize="28sp"
+        android:drawableStart="@drawable/ic_account_circle_48px"
+        android:drawablePadding="@dimen/activity_horizontal_margin"
+        tools:layout_editor_absoluteX="97dp"
+        tools:layout_editor_absoluteY="0dp"
         tools:text="moto" />
 
-</FrameLayout>
+</LinearLayout>

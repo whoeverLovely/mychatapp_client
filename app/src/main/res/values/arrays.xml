@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <array name="friend_msg_color_options_label">
+        <item>@string/color_friend_msg_option_label_default</item>
+        <item>@string/color_friend_msg_option_label_blue</item>
+        <item>@string/color_friend_msg_option_label_bluegrey</item>
+        <item>@string/color_friend_msg_option_label_green</item>
+        <item>@string/color_friend_msg_option_label_red</item>
+    </array>
+
+    <array name="friend_msg_color_options_value">
+        <item>@string/color_friend_msg_option_value_default</item>
+        <item>@string/color_friend_msg_option_value_blue</item>
+        <item>@string/color_friend_msg_option_value_bluegrey</item>
+        <item>@string/color_friend_msg_option_value_green</item>
+        <item>@string/color_friend_msg_option_value_red</item>-->
+
+    </array>
+
+</resources>

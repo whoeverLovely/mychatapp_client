@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <ListPreference
+        android:defaultValue="@string/color_friend_msg_option_value_default"
+        android:entries="@array/friend_msg_color_options_label"
+        android:entryValues="@array/friend_msg_color_options_value"
+        android:key="@string/color_friend_msg_key"
+        android:title="@string/color_friend_msg_label"/>
+
+
+</PreferenceScreen>

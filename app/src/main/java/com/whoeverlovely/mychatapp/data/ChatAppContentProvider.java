@@ -10,7 +10,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
 /**
  * Created by yan on 3/24/18.
@@ -66,7 +65,6 @@ public class ChatAppContentProvider extends ContentProvider {
                 break;
 
             case ID_CONTACT_WITH_USERID:
-                Log.d(TAG, "CONTACT_WITH_USERID query started");
                 cursor = db.query(ChatAppDBContract.ContactEntry.TABLE_NAME,
                         projection,
                         ChatAppDBContract.ContactEntry.COLUMN_USER_ID + "=?",

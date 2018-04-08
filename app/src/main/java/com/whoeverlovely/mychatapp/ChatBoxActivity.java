@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.support.v4.app.NavUtils;
 import android.support.v4.content.CursorLoader;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -18,6 +19,9 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -29,9 +33,12 @@ import com.whoeverlovely.mychatapp.Util.NetworkUtil;
 import com.whoeverlovely.mychatapp.Util.Security.AESKeyStoreUtil;
 import com.whoeverlovely.mychatapp.Util.Security.AESKeyczarUtil;
 import com.whoeverlovely.mychatapp.data.ChatAppDBContract;
+import com.whoeverlovely.mychatapp.data.ChatAppDBHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.zip.Inflater;
 
 public class ChatBoxActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -41,17 +48,22 @@ public class ChatBoxActivity extends AppCompatActivity implements LoaderManager.
 
     private EditText inputEditText;
     private MessageAdapter adapter;
+    private RecyclerView messageListRecyclerView;
 
     private int friendId;
     private Cursor friendCursor;
+    private String friendName;
     private String myId;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG, "onCreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_box);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
 
         inputEditText = findViewById(R.id.chatbox_textEditor);
 
@@ -65,9 +77,10 @@ public class ChatBoxActivity extends AppCompatActivity implements LoaderManager.
         myId = PreferenceManager.getDefaultSharedPreferences(this).getString("myUserId", null);
 
         adapter = new MessageAdapter(this);
-        RecyclerView messageListRecyclerView = findViewById(R.id.msg_list_recyclerView);
+        messageListRecyclerView = findViewById(R.id.msg_list_recyclerView);
         messageListRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         messageListRecyclerView.setAdapter(adapter);
+
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
                 new IntentFilter(Integer.toString(friendId)));
@@ -84,8 +97,34 @@ public class ChatBoxActivity extends AppCompatActivity implements LoaderManager.
             }
         });
 
-
         getSupportLoaderManager().initLoader(ID_MESSAGE_LOADER, null, this);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_chat_box, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        switch (id) {
+            case R.id.nickname_chatbox_menu_item:
+                ChatAppDBHelper.setUserNameWithAlertDialog(this, friendId);
+                Log.d(TAG, "nickname changed.");
+                getSupportLoaderManager().restartLoader(ID_MESSAGE_LOADER, null, this);
+                return true;
+
+            case android.R.id.home:
+                NavUtils.navigateUpFromSameTask(this);
+                return true;
+
+            default:
+                throw new IllegalArgumentException("The menu item selected is not found.");
+        }
     }
 
     @Override
@@ -102,9 +141,6 @@ public class ChatBoxActivity extends AppCompatActivity implements LoaderManager.
                         ChatAppDBContract.MessageEntry.COLUMN_TIMESTAMP);
 
             case ID_CONTACT_LOADER:
-                Log.d(TAG, "contact loader started");
-                Log.d(TAG, "friend id: " + friendId);
-
                 return new CursorLoader(this,
                         ContentUris.withAppendedId(ChatAppDBContract.ContactEntry.CONTENT_URI, friendId),
                         null,
@@ -120,28 +156,26 @@ public class ChatBoxActivity extends AppCompatActivity implements LoaderManager.
     @Override
     public void onLoadFinished(android.support.v4.content.Loader<Cursor> loader, Cursor data) {
         int loaderId = loader.getId();
-        Log.d(TAG, "loader id in onLoadFinished: " + loaderId);
 
         switch (loaderId) {
             case ID_MESSAGE_LOADER:
-                Log.d(TAG, "onLoadFinished cursor: " + data.getCount());
-                adapter.swapCursor(data);
+                adapter.swapCursor(data);        //this will be running after the user name is updated, because the URI associated to the loader is updated.
+                messageListRecyclerView.smoothScrollToPosition(adapter.getItemCount() - 1);
+                Log.d(TAG, "message loader finished.");
                 break;
 
             case ID_CONTACT_LOADER:
-                Log.d(TAG, "data count: " + data.getCount());
 
-                friendCursor = data;
-                Log.d(TAG, "onLoadFinished contact cursor: " + data.getCount());
-
-                if (!friendCursor.moveToFirst())
+                if (!data.moveToFirst())
                     throw new RuntimeException("The contact doesn't exist.");
 
-                for (int columnIndex = 0; columnIndex < friendCursor.getColumnCount(); columnIndex++) {
-                    Log.d(TAG, friendCursor.getColumnName(columnIndex) + ": " + friendCursor.getString(columnIndex));
-                }
+               String friendNameNew = data.getString(data.getColumnIndex(ChatAppDBContract.ContactEntry.COLUMN_NAME));
+               if(!friendNameNew.equals(friendName)) {
+                   adapter.updateName(friendNameNew);
+               }
 
-                setTitle(friendCursor.getString(friendCursor.getColumnIndex(ChatAppDBContract.ContactEntry.COLUMN_NAME)));
+               friendName = friendNameNew;
+                setTitle(friendName);
                 break;
 
             default:
@@ -201,7 +235,6 @@ public class ChatBoxActivity extends AppCompatActivity implements LoaderManager.
                 param.put("data", data.toString());
 
                 JSONObject result = NetworkUtil.executePost(url, param);
-                Log.d(TAG, "Sent message: " + msgContent + " to " + friendCursor.getString(friendCursor.getColumnIndex(ChatAppDBContract.ContactEntry.COLUMN_NAME)));
 
                 //If no error received from server, pass the plain msgContent to onPostExecute
                 if (result == null) {

@@ -13,6 +13,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.whoeverlovely.mychatapp.Util.NotificationUtils;
 import com.whoeverlovely.mychatapp.Util.Security.AESKeyStoreUtil;
 import com.whoeverlovely.mychatapp.Util.Security.AESKeyczarUtil;
 import com.whoeverlovely.mychatapp.Util.Security.MyKeyczarReader;
@@ -95,24 +96,39 @@ public class PushReceiver extends BroadcastReceiver {
         // payload for msg
         if (intent.getStringExtra("msgContent") != null) {
             String encryptedMesgContent = intent.getStringExtra("msgContent");
-            String senderId = intent.getStringExtra("from");
+            String senderIdStr = intent.getStringExtra("from");
+            long senderId = Long.parseLong(senderIdStr);
 
-            String decryptedMsgContent = new AESKeyczarUtil(context).decrypt(Integer.parseInt(senderId), encryptedMesgContent);
+            String decryptedMsgContent = new AESKeyczarUtil(context).decrypt(senderId, encryptedMesgContent);
             Log.d(TAG, "decryptedMsgContent: " + decryptedMsgContent);
 
             // save message to table message, status=>10
             ContentValues cv = new ContentValues();
             cv.put(ChatAppDBContract.MessageEntry.COLUMN_MESSAGE_CONTENT, decryptedMsgContent);
-            cv.put(ChatAppDBContract.MessageEntry.COLUMN_SENDER_ID, Integer.parseInt(senderId));
+            cv.put(ChatAppDBContract.MessageEntry.COLUMN_SENDER_ID, senderId);
             cv.put(ChatAppDBContract.MessageEntry.COLUMN_RECEIVER_ID, Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(context).getString("myUserId", null)));
             cv.put(ChatAppDBContract.MessageEntry.COLUMN_STATUS, 10);
             context.getContentResolver().insert(ChatAppDBContract.MessageEntry.CONTENT_URI, cv);
 
-            Log.d(TAG, "create intent name: " + senderId);
-            Intent chatBoxIntent = new Intent(senderId);
+            // Query sender name for notification
+            Cursor senderNameCursor = context.getContentResolver().query(ContentUris.withAppendedId(ChatAppDBContract.ContactEntry.CONTENT_URI, senderId),
+                    new String[] {ChatAppDBContract.ContactEntry.COLUMN_NAME},
+                    null,
+                    null,
+                    null);
+            String senderName;
+            if(senderNameCursor.moveToFirst()) {
+                senderName = senderNameCursor.getString(0);
+            } else
+                throw new RuntimeException("Sender name is null");
+
+            Intent chatBoxIntent = new Intent();
             // You can also include some extra data.
             chatBoxIntent.putExtra("senderId", senderId);
             LocalBroadcastManager.getInstance(context).sendBroadcast(chatBoxIntent);
+
+            // Display notification
+            NotificationUtils.remindMsgReceived(context, decryptedMsgContent, senderId, senderName);
         }
 
     }

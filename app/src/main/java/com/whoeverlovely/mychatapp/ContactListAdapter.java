@@ -3,6 +3,7 @@ package com.whoeverlovely.mychatapp;
 import android.content.Context;
 import android.database.Cursor;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,6 +50,7 @@ public class ContactListAdapter extends RecyclerView.Adapter<ContactListAdapter.
             return;
 
         String name = cursor.getString(cursor.getColumnIndex(ChatAppDBContract.ContactEntry.COLUMN_NAME));
+        Log.d(TAG, "The contact name is " + name);
         int userId = cursor.getInt(cursor.getColumnIndex(ChatAppDBContract.ContactEntry.COLUMN_USER_ID));
         if (name != null)
             holder.ContactItemTextView.setText(name);

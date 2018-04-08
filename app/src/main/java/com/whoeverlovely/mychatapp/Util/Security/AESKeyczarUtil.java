@@ -35,7 +35,7 @@ public class AESKeyczarUtil {
         this.context = context;
     }
 
-    public byte[] retrieveAESKey(int userId) {
+    public byte[] retrieveAESKey(long userId) {
 
         Cursor encryptedAESKey = context.getContentResolver().query(ContentUris.withAppendedId(ChatAppDBContract.ContactEntry.CONTENT_URI, userId),
                 new String[] {ChatAppDBContract.ContactEntry.COLUMN_AES_KEY},
@@ -67,7 +67,7 @@ public class AESKeyczarUtil {
         return cipherText;
     }
 
-    public String decrypt(int userId, String encryptedText) {
+    public String decrypt(long userId, String encryptedText) {
 
         byte[] aesKeyByte = retrieveAESKey(userId);
         String plainText = null;

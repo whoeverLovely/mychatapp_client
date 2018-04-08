@@ -1,21 +1,16 @@
 package com.whoeverlovely.mychatapp;
 
-import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
-import android.net.Uri;
+import android.graphics.Color;
 import android.preference.PreferenceManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.whoeverlovely.mychatapp.data.ChatAppDBContract;
-import com.whoeverlovely.mychatapp.data.ChatAppDBHelper;
-
-import java.util.zip.Inflater;
 
 /**
  * Created by yan on 3/19/18.
@@ -25,6 +20,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ContactV
 
     private final Context mContext;
     private Cursor cursor;
+    private String userName;
     private final static String TAG = "MessageAdapter";
 
     public MessageAdapter(Context context) {
@@ -33,6 +29,11 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ContactV
 
     void swapCursor(Cursor newCursor) {
         cursor = newCursor;
+        notifyDataSetChanged();
+    }
+
+    void updateName(String name) {
+        userName = name;
         notifyDataSetChanged();
     }
 
@@ -56,27 +57,31 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ContactV
         String msgContent = cursor.getString(cursor.getColumnIndex(ChatAppDBContract.MessageEntry.COLUMN_MESSAGE_CONTENT));
         String timestamp = cursor.getString(cursor.getColumnIndex(ChatAppDBContract.MessageEntry.COLUMN_TIMESTAMP));
 
-        //Query userName through content provider with CONTACT_WITH_USERID URI
-        Uri uri = ContentUris.withAppendedId(ChatAppDBContract.ContactEntry.CONTENT_URI, senderId);
-        Cursor contactCursor = mContext.getContentResolver().query(uri,
-                new String[] {ChatAppDBContract.ContactEntry.COLUMN_NAME},
-                null,
-                null,
-                null);
+       String myUserId = PreferenceManager.getDefaultSharedPreferences(mContext)
+               .getString(mContext.getString(R.string.pref_key_my_user_id), "");
+       //The message is received
+       if(senderId != Integer.parseInt(myUserId)) {
+           holder.msgSender.setText(userName + ": ");
+           String friendMsgColor = PreferenceManager.getDefaultSharedPreferences(mContext)
+                   .getString(mContext.getString(R.string.color_friend_msg_key), "");
 
-        //If the query result is not null, the messages were sent from other user, set userName and display color accordingly
-        String userName;
+           if (friendMsgColor.equals(mContext.getString(R.string.color_friend_msg_option_value_default)))
+               setMsgColor(holder, mContext.getColor(R.color.colorPrimary));
+           else if (friendMsgColor.equals(mContext.getString(R.string.color_friend_msg_option_value_blue)))
+               setMsgColor(holder, mContext.getColor(R.color.colorFriendMsgBlue));
+           else if (friendMsgColor.equals(mContext.getString(R.string.color_friend_msg_option_value_bluegrey)))
+               setMsgColor(holder, mContext.getColor(R.color.colorFriendMsgBlueGrey));
+           else if (friendMsgColor.equals(mContext.getString(R.string.color_friend_msg_option_value_red)))
+               setMsgColor(holder, mContext.getColor(R.color.colorFriendMsgRed));
+           else if (friendMsgColor.equals(mContext.getString(R.string.color_friend_msg_option_value_green)))
+               setMsgColor(holder, mContext.getColor(R.color.colorFriendMsgGreen));
+           else
+               throw new RuntimeException();
+       } else {
+           holder.msgSender.setText("Me: ");
+           setMsgColor(holder, Color.GRAY);
+       }
 
-        if(contactCursor.moveToFirst()) {
-            userName = contactCursor.getString(0);
-
-            holder.msgSender.setTextColor(mContext.getResources().getColor(R.color.colorPrimaryDark, null));
-            holder.msgContent.setTextColor(mContext.getResources().getColor(R.color.colorPrimaryDark, null));
-            holder.msgTimestamp.setTextColor(mContext.getResources().getColor(R.color.colorPrimaryDark, null));
-        } else
-            userName = "Me";
-
-        holder.msgSender.setText(userName + ": ");
         holder.msgContent.setText(msgContent);
         holder.msgTimestamp.setText(timestamp);
     }
@@ -101,5 +106,11 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ContactV
             msgContent = itemView.findViewById(R.id.msg_content);
             msgTimestamp = itemView.findViewById(R.id.msg_timestamp);
         }
+    }
+
+    private void setMsgColor(ContactViewHolder holder, int color) {
+        holder.msgSender.setTextColor(color);
+        holder.msgContent.setTextColor(color);
+        holder.msgTimestamp.setTextColor(color);
     }
 }

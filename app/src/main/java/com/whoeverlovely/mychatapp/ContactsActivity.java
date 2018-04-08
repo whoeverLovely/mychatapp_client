@@ -2,6 +2,7 @@ package com.whoeverlovely.mychatapp;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.preference.PreferenceManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -10,6 +11,9 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 
 import com.whoeverlovely.mychatapp.data.ChatAppDBContract;
 
@@ -37,6 +41,34 @@ public class ContactsActivity extends AppCompatActivity implements ContactListAd
         contactListRecyclerView.setAdapter(contactListAdapter);
 
         getSupportLoaderManager().initLoader(ID_CONTACT_LOADER, null, this);
+
+        /*
+        Calling this during onCreate() ensures that your app is properly initialized with default settings,
+        which your app might need to read in order to determine some behaviors
+        */
+        PreferenceManager.setDefaultValues(this, R.xml.setting, false);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_contacts, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        switch (id) {
+            case R.id.settings_contacts_menu_item:
+                Intent intent = new Intent(this, SettingActivity.class);
+                startActivity(intent);
+                return true;
+
+            default:
+                throw new IllegalArgumentException("The menu item selected is not known.");
+        }
+
     }
 
     @Override
@@ -49,7 +81,7 @@ public class ContactsActivity extends AppCompatActivity implements ContactListAd
                         ChatAppDBContract.ContactEntry.CONTENT_URI,
                         new String[]{ChatAppDBContract.ContactEntry.COLUMN_NAME, ChatAppDBContract.ContactEntry.COLUMN_USER_ID},
                         ChatAppDBContract.ContactEntry.COLUMN_AES_KEY + " is not null AND " + ChatAppDBContract.ContactEntry.COLUMN_AES_KEY + " != " + "?",
-                        new String[] {""},
+                        new String[]{""},
                         null);
 
             default:
@@ -61,7 +93,6 @@ public class ContactsActivity extends AppCompatActivity implements ContactListAd
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         contactListAdapter.swapCursor(data);
         Log.d(TAG, String.valueOf(data.getCount()));
-
 
     }
 

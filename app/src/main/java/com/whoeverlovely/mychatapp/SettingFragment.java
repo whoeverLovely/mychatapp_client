@@ -8,16 +8,13 @@ import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceScreen;
-import android.widget.EditText;
-
-import java.util.List;
 
 /**
  * Created by yan on 3/27/18.
  */
 
-public class ContactSettingFragment extends PreferenceFragmentCompat implements
-        SharedPreferences.OnSharedPreferenceChangeListener {
+public class SettingFragment extends PreferenceFragmentCompat implements
+        SharedPreferences.OnSharedPreferenceChangeListener, Preference.OnPreferenceChangeListener {
 
     /**
      * Set preference summary rules for each kind of preference: CheckBoxPreference, EditTextPreference, ListPreference
@@ -37,9 +34,9 @@ public class ContactSettingFragment extends PreferenceFragmentCompat implements
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-        addPreferencesFromResource(R.xml.contact_setting);
+        addPreferencesFromResource(R.xml.setting);
 
-        //Set preference summary for each preference item
+        //Set preference summary for each preference item when launching the fragment
         PreferenceScreen preferenceScreen = getPreferenceScreen();
         SharedPreferences sharedPreferences = preferenceScreen.getSharedPreferences();
         for (int i = 0; i < preferenceScreen.getPreferenceCount(); i++) {
@@ -56,17 +53,21 @@ public class ContactSettingFragment extends PreferenceFragmentCompat implements
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-
-        //If username changed,
-        // 1) update the name in db via content provider
-        // 2) sync the update to sharedPreference
-        // 3) and sync chatbox display immediately
+        Preference p = findPreference(key);
+        if(p != null) {
+            setPreferenceSummary(p, sharedPreferences.getString(key, ""));
+        }
     }
 
     @Override
     public void onStop() {
         super.onStop();
         getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    public boolean onPreferenceChange(Preference preference, Object newValue) {
+        return false;
     }
 }
 
