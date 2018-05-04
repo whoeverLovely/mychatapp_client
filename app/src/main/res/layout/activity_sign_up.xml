@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -9,13 +8,13 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.whoeverlovely.mychatapp.SignUpActivity">
+    tools:context="com.whoeverlovely.mychatapp.ui.SignUpActivity">
 
     <EditText
         android:id="@+id/signup_password"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Please input password."
+        android:hint="@string/please_input_password"
         android:inputType="textPassword"
         />
 
@@ -23,7 +22,7 @@
         android:id="@+id/signup_repeat_password"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Please confirm password."
+        android:hint="@string/please_confirm_password"
         android:inputType="textPassword"
         />
 
@@ -37,7 +36,7 @@
         android:id="@+id/signup_submit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Sign Up"/>
+        android:text="@string/sign_up"/>
 
     <ProgressBar
         android:id="@+id/signup_loading_indicator"

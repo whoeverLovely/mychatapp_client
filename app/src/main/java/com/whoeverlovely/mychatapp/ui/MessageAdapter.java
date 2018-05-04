@@ -1,15 +1,17 @@
-package com.whoeverlovely.mychatapp;
+package com.whoeverlovely.mychatapp.ui;
 
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.whoeverlovely.mychatapp.R;
 import com.whoeverlovely.mychatapp.data.ChatAppDBContract;
 
 /**
@@ -23,7 +25,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ContactV
     private String userName;
     private final static String TAG = "MessageAdapter";
 
-    public MessageAdapter(Context context) {
+    MessageAdapter(Context context) {
         mContext = context;
     }
 
@@ -37,8 +39,9 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ContactV
         notifyDataSetChanged();
     }
 
+    @NonNull
     @Override
-    public MessageAdapter.ContactViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public MessageAdapter.ContactViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
         LayoutInflater inflater = LayoutInflater.from(mContext);
         View view = inflater.inflate(R.layout.message_list_item, parent, false);
@@ -47,7 +50,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ContactV
     }
 
     @Override
-    public void onBindViewHolder(ContactViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ContactViewHolder holder, int position) {
 
         if (!cursor.moveToPosition(position))
             return;

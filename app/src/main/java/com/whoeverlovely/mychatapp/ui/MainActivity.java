@@ -1,4 +1,4 @@
-package com.whoeverlovely.mychatapp;
+package com.whoeverlovely.mychatapp.ui;
 
 import android.app.AlertDialog;
 import android.content.ContentUris;
@@ -6,7 +6,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -29,12 +28,12 @@ import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
-import com.whoeverlovely.mychatapp.Util.NetworkUtil;
-import com.whoeverlovely.mychatapp.Util.Security.AESKeyStoreUtil;
-import com.whoeverlovely.mychatapp.Util.Security.FriendKeyczarReader;
-import com.whoeverlovely.mychatapp.Util.Security.SignKeyReader;
+import com.whoeverlovely.mychatapp.R;
+import com.whoeverlovely.mychatapp.util.NetworkUtil;
+import com.whoeverlovely.mychatapp.util.Security.AESKeyStoreUtil;
+import com.whoeverlovely.mychatapp.util.Security.FriendKeyczarReader;
+import com.whoeverlovely.mychatapp.util.Security.SignKeyReader;
 import com.whoeverlovely.mychatapp.data.ChatAppDBContract;
-import com.whoeverlovely.mychatapp.data.ChatAppDBHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;

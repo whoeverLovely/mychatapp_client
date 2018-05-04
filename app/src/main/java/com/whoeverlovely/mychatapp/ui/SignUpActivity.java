@@ -1,4 +1,4 @@
-package com.whoeverlovely.mychatapp;
+package com.whoeverlovely.mychatapp.ui;
 
 import android.content.Context;
 import android.content.Intent;
@@ -15,9 +15,10 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.whoeverlovely.mychatapp.Util.NetworkUtil;
-import com.whoeverlovely.mychatapp.Util.Security.AESKeyStoreUtil;
-import com.whoeverlovely.mychatapp.Util.Security.MyKeyczarReader;
+import com.whoeverlovely.mychatapp.R;
+import com.whoeverlovely.mychatapp.util.NetworkUtil;
+import com.whoeverlovely.mychatapp.util.Security.AESKeyStoreUtil;
+import com.whoeverlovely.mychatapp.util.Security.MyKeyczarReader;
 
 import org.json.JSONException;
 import org.json.JSONObject;

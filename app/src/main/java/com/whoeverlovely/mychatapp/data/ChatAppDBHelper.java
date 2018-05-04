@@ -17,7 +17,7 @@ import android.widget.EditText;
 
 import com.google.common.base.Strings;
 import com.whoeverlovely.mychatapp.R;
-import com.whoeverlovely.mychatapp.Util.Security.AESKeyStoreUtil;
+import com.whoeverlovely.mychatapp.util.Security.AESKeyStoreUtil;
 
 /**
  * Created by yan on 3/19/18.

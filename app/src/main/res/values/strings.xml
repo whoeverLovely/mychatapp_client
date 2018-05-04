@@ -43,5 +43,9 @@
 
     <!--Strings realted to contact list-->
     <string name="contacts_title">Contacts</string>
+    <string name="please_input_password">Please input password.</string>
+    <string name="please_confirm_password">Please confirm password.</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="profile_qrcode">profile_qrcode</string>
 
 </resources>

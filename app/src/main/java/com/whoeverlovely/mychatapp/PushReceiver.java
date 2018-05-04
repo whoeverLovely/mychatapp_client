@@ -3,21 +3,19 @@ package com.whoeverlovely.mychatapp;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.Context;
 import android.content.BroadcastReceiver;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import com.whoeverlovely.mychatapp.Util.NotificationUtils;
-import com.whoeverlovely.mychatapp.Util.Security.AESKeyStoreUtil;
-import com.whoeverlovely.mychatapp.Util.Security.AESKeyczarUtil;
-import com.whoeverlovely.mychatapp.Util.Security.MyKeyczarReader;
-import com.whoeverlovely.mychatapp.Util.Security.VerifierKeyReader;
+import com.whoeverlovely.mychatapp.util.NotificationUtils;
+import com.whoeverlovely.mychatapp.util.Security.AESKeyStoreUtil;
+import com.whoeverlovely.mychatapp.util.Security.AESKeyczarUtil;
+import com.whoeverlovely.mychatapp.util.Security.MyKeyczarReader;
+import com.whoeverlovely.mychatapp.util.Security.VerifierKeyReader;
 import com.whoeverlovely.mychatapp.data.ChatAppDBContract;
 import com.whoeverlovely.mychatapp.data.ChatAppDBHelper;
 
@@ -33,6 +31,9 @@ import org.keyczar.exceptions.KeyczarException;
 
 public class PushReceiver extends BroadcastReceiver {
     final private static String TAG = "PushReceiver";
+    public final static String NEW_MSG_ACTION = "com.whoeverlovely.mychatapp.ACTION_NEW_MSG";
+    public final static String INTENT_LONG_EXTRA_SENDERID = "senderId";
+    public final static String INTENT_STRING_EXTRA_TEXT = "msgText";
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -77,7 +78,7 @@ public class PushReceiver extends BroadcastReceiver {
                 Log.d(TAG, "key signature verified: " + String.valueOf(verified));
 
                 //save userId_AES key to table Contact
-                if(verified) {
+                if (verified) {
                     ContentValues cv = new ContentValues();
                     cv.put(ChatAppDBContract.ContactEntry.COLUMN_AES_KEY, AESKeyStoreUtil.encryptAESKeyStore(key));
                     db.update(ChatAppDBContract.ContactEntry.TABLE_NAME,
@@ -110,25 +111,18 @@ public class PushReceiver extends BroadcastReceiver {
             cv.put(ChatAppDBContract.MessageEntry.COLUMN_STATUS, 10);
             context.getContentResolver().insert(ChatAppDBContract.MessageEntry.CONTENT_URI, cv);
 
-            // Query sender name for notification
-            Cursor senderNameCursor = context.getContentResolver().query(ContentUris.withAppendedId(ChatAppDBContract.ContactEntry.CONTENT_URI, senderId),
-                    new String[] {ChatAppDBContract.ContactEntry.COLUMN_NAME},
-                    null,
-                    null,
-                    null);
-            String senderName;
-            if(senderNameCursor.moveToFirst()) {
-                senderName = senderNameCursor.getString(0);
-            } else
-                throw new RuntimeException("Sender name is null");
+
 
             Intent chatBoxIntent = new Intent();
             // You can also include some extra data.
-            chatBoxIntent.putExtra("senderId", senderId);
-            LocalBroadcastManager.getInstance(context).sendBroadcast(chatBoxIntent);
+            chatBoxIntent.putExtra(INTENT_LONG_EXTRA_SENDERID, senderId);
+            chatBoxIntent.putExtra(INTENT_STRING_EXTRA_TEXT, decryptedMsgContent);
+            chatBoxIntent.setAction(NEW_MSG_ACTION);
 
+            context.sendOrderedBroadcast(chatBoxIntent, null);
+            /* LocalBroadcastManager.getInstance(context).sendBroadcast(chatBoxIntent);*/
             // Display notification
-            NotificationUtils.remindMsgReceived(context, decryptedMsgContent, senderId, senderName);
+//            NotificationUtils.remindMsgReceived(context, decryptedMsgContent, senderId, senderName);
         }
 
     }

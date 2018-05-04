@@ -1,4 +1,4 @@
-package com.whoeverlovely.mychatapp;
+package com.whoeverlovely.mychatapp.ui;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -8,6 +8,8 @@ import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceScreen;
+
+import com.whoeverlovely.mychatapp.R;
 
 /**
  * Created by yan on 3/27/18.

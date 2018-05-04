@@ -27,13 +27,45 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity android:name=".ui.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".ui.SignUpActivity"
+            android:label="@string/signup_title" />
+
+        <activity
+            android:name=".ui.ChatBoxActivity"
+            android:parentActivityName=".ui.ContactsActivity" />
+
+        <activity android:name=".ui.TestActivity" />
+
+        <activity
+            android:name=".ui.ContactsActivity"
+            android:label="@string/contacts_title" />
+        <activity
+            android:name=".ui.SettingActivity"
+            android:parentActivityName=".ui.ContactsActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.ContactsActivity" />
+        </activity>
+
+        <receiver android:name=".util.NotificationUtils">
+            <intent-filter>
+                <action android:name="com.whoeverlovely.mychatapp.ACTION_NEW_MSG"/>
+            </intent-filter>
+        </receiver>
+
+        <provider
+            android:name=".data.ChatAppContentProvider"
+            android:authorities="com.whoeverlovely.mychatapp"
+            android:exported="false" />
+
 
         <!-- Pushy Declarations -->
 
@@ -79,29 +111,6 @@
         <service android:name="me.pushy.sdk.services.PushySocketService" />
 
         <!-- End Pushy Declarations -->
-        <activity android:name=".SignUpActivity"
-            android:label="@string/signup_title"/>
-
-        <activity
-            android:name=".ChatBoxActivity"
-            android:parentActivityName=".ContactsActivity" />
-
-        <activity android:name=".TestActivity" />
-
-        <activity android:name=".ContactsActivity"
-            android:label="@string/contacts_title"/>
-
-        <provider
-            android:name=".data.ChatAppContentProvider"
-            android:authorities="com.whoeverlovely.mychatapp"
-            android:exported="false" />
-
-        <activity android:name=".SettingActivity"
-        android:parentActivityName=".ContactsActivity">
-        <meta-data
-            android:name="android.support.PARENT_ACTIVITY"
-            android:value=".ContactsActivity" />
-        </activity>
 
     </application>
 

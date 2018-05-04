@@ -1,4 +1,4 @@
-package com.whoeverlovely.mychatapp;
+package com.whoeverlovely.mychatapp.ui;
 
 import android.content.Intent;
 import android.database.Cursor;
@@ -15,6 +15,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import com.whoeverlovely.mychatapp.R;
 import com.whoeverlovely.mychatapp.data.ChatAppDBContract;
 
 public class ContactsActivity extends AppCompatActivity implements ContactListAdapter.ContactItemClickHandler, LoaderManager.LoaderCallbacks<Cursor> {
@@ -102,7 +103,7 @@ public class ContactsActivity extends AppCompatActivity implements ContactListAd
     }
 
     @Override
-    public void onClick(int userId) {
+    public void onClick(long userId) {
         Intent intent = new Intent(this, ChatBoxActivity.class);
         intent.putExtra("userId", userId);
         startActivity(intent);

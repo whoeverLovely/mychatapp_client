@@ -1,4 +1,4 @@
-package com.whoeverlovely.mychatapp;
+package com.whoeverlovely.mychatapp.ui;
 
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.widget.TextView;
+
+import com.whoeverlovely.mychatapp.R;
 
 import java.util.Map;
 import java.util.Set;
@@ -21,7 +23,7 @@ public class TestActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test);
 
-        testTextView = (TextView)findViewById(R.id.test_textview);
+        testTextView = findViewById(R.id.test_textview);
         testTextView.setMovementMethod(new ScrollingMovementMethod());
 
         /*SharedPreferences shared_preference = getSharedPreferences(getString(R.string.default_shared_preference),MODE_PRIVATE);*/
@@ -33,22 +35,22 @@ public class TestActivity extends AppCompatActivity {
             Object pref = defaultPrefs.get(key);
             String printVal = "";
             if (pref instanceof Boolean) {
-                printVal =  key + " : " + (Boolean) pref;
+                printVal =  key + " : " + pref;
             }
             if (pref instanceof Float) {
-                printVal =  key + " : " + (Float) pref;
+                printVal =  key + " : " + pref;
             }
             if (pref instanceof Integer) {
-                printVal =  key + " : " + (Integer) pref;
+                printVal =  key + " : " + pref;
             }
             if (pref instanceof Long) {
-                printVal =  key + " : " + (Long) pref;
+                printVal =  key + " : " + pref;
             }
             if (pref instanceof String) {
-                printVal =  key + " : " + (String) pref;
+                printVal =  key + " : " + pref;
             }
             if (pref instanceof Set<?>) {
-                printVal =  key + " : " + (Set<String>) pref;
+                printVal =  key + " : " + pref;
             }
 
             Log.d(TAG,printVal);
