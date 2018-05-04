@@ -132,7 +132,7 @@ public class SignUpActivity extends AppCompatActivity {
                     //generate RSA key pair for exchanging AES key when adding friends
                     MyKeyczarReader.createKey(context);
 
-                    Intent intent = new Intent(context, MainActivity.class);
+                    Intent intent = new Intent(context, ContactsActivity.class);
                     startActivity(intent);
                 }
 

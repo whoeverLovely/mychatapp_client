@@ -7,5 +7,21 @@
         android:title="@string/settings_menu"
         app:showAsAction="never" />
 
+    <item android:id="@+id/show_profile_contacts_menu_item"
+        android:title="@string/show_profile"
+        app:showAsAction="never"/>
+
+    <item android:id="@+id/copy_profile_contacts_menu_item"
+        android:title="@string/copy_profile"
+        app:showAsAction="never"/>
+
+    <item android:id="@+id/scan_qrcode_contacts_menu_item"
+        android:title="@string/scan_qrcode"
+        app:showAsAction="never"/>
+
+    <item android:id="@+id/delete_data_contacts_menu_item"
+        android:title="@string/delete_data"
+        app:showAsAction="never"/>
+
 
 </menu>

@@ -27,13 +27,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ui.MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
         <activity
             android:name=".ui.SignUpActivity"
             android:label="@string/signup_title" />
@@ -46,7 +39,13 @@
 
         <activity
             android:name=".ui.ContactsActivity"
-            android:label="@string/contacts_title" />
+            android:label="@string/contacts_title">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".ui.SettingActivity"
             android:parentActivityName=".ui.ContactsActivity">
@@ -57,7 +56,7 @@
 
         <receiver android:name=".util.NotificationUtils">
             <intent-filter>
-                <action android:name="com.whoeverlovely.mychatapp.ACTION_NEW_MSG"/>
+                <action android:name="com.whoeverlovely.mychatapp.ACTION_NEW_MSG" />
             </intent-filter>
         </receiver>
 

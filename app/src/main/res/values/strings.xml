@@ -9,7 +9,9 @@
     <string name="signup_success">Your account has been created successfully!</string>
     <string name="set_friend_name">Please set your friend\'s nickname:</string>
     <string name="signup_title">Sign Up</string>
-
+    <string name="please_input_password">Please input password.</string>
+    <string name="please_confirm_password">Please confirm password.</string>
+    <string name="sign_up">Sign Up</string>
 
     <!-- Strings related to settings -->
     <string name="color_friend_msg_option_label_default">Default</string>
@@ -30,8 +32,9 @@
     <string name="settings_menu">Settings</string>
 
     <!-- Strings related to chat box -->
-    <string name="chat_box_menu_change_name_item">Change your friend\'s display name</string>
+    <string name="chat_box_menu_change_name_item">Change Name</string>
     <string name="send_button_label">Send</string>
+    <string name="show_profile">Show Profile</string>
 
     <!-- Strings related to SharedPreference -->
     <string name="my_private_key">my_private_key</string>
@@ -43,9 +46,12 @@
 
     <!--Strings realted to contact list-->
     <string name="contacts_title">Contacts</string>
-    <string name="please_input_password">Please input password.</string>
-    <string name="please_confirm_password">Please confirm password.</string>
-    <string name="sign_up">Sign Up</string>
+
     <string name="profile_qrcode">profile_qrcode</string>
+    <string name="copy_profile">Copy Profile</string>
+    <string name="scan_qrcode">Scan QRcode</string>
+    <string name="delete_data">Delete Data</string>
+    <string name="qrcode_imageview">qrcode_imageView</string>
+
 
 </resources>
