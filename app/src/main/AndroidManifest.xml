@@ -54,11 +54,13 @@
                 android:value=".ui.ContactsActivity" />
         </activity>
 
-        <receiver android:name=".util.NotificationUtils">
+        <receiver android:name=".NotificationCreator">
             <intent-filter>
-                <action android:name="com.whoeverlovely.mychatapp.ACTION_NEW_MSG" />
+                <action android:name="com.whoeverlovely.mychatapp.action.action_new_message" />
             </intent-filter>
         </receiver>
+
+        <service android:name=".ContactsService"/>
 
         <provider
             android:name=".data.ChatAppContentProvider"

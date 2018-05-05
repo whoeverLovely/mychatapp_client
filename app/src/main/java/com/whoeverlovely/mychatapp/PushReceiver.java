@@ -11,7 +11,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import com.whoeverlovely.mychatapp.util.NotificationUtils;
 import com.whoeverlovely.mychatapp.util.Security.AESKeyStoreUtil;
 import com.whoeverlovely.mychatapp.util.Security.AESKeyczarUtil;
 import com.whoeverlovely.mychatapp.util.Security.MyKeyczarReader;
@@ -31,7 +30,7 @@ import org.keyczar.exceptions.KeyczarException;
 
 public class PushReceiver extends BroadcastReceiver {
     final private static String TAG = "PushReceiver";
-    public final static String NEW_MSG_ACTION = "com.whoeverlovely.mychatapp.ACTION_NEW_MSG";
+    public final static String NEW_MSG_ACTION = "com.whoeverlovely.mychatapp.action.action_new_message";
     public final static String INTENT_LONG_EXTRA_SENDERID = "senderId";
     public final static String INTENT_STRING_EXTRA_TEXT = "msgText";
 

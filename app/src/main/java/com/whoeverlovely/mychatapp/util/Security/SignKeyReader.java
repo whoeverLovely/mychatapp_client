@@ -34,7 +34,7 @@ public class SignKeyReader implements KeyczarReader{
         meta.addVersion(v);
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        String encryptedPrivateKey = sharedPreferences.getString(context.getString(R.string.my_private_key), null);
+        String encryptedPrivateKey = sharedPreferences.getString(context.getString(R.string.pref_my_private_key), null);
         if (Strings.isNullOrEmpty(encryptedPrivateKey)) {
             Log.i(getClass().getSimpleName(), "No stored my key.");
         } else {

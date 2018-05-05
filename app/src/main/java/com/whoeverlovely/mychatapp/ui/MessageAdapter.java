@@ -61,7 +61,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ContactV
         String timestamp = cursor.getString(cursor.getColumnIndex(ChatAppDBContract.MessageEntry.COLUMN_TIMESTAMP));
 
        String myUserId = PreferenceManager.getDefaultSharedPreferences(mContext)
-               .getString(mContext.getString(R.string.pref_key_my_user_id), "");
+               .getString(mContext.getString(R.string.pref_my_user_id), "");
        //The message is received
        if(senderId != Integer.parseInt(myUserId)) {
            holder.msgSender.setText(userName + ": ");

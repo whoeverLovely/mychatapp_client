@@ -1,4 +1,4 @@
-package com.whoeverlovely.mychatapp.util;
+package com.whoeverlovely.mychatapp;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -21,7 +21,7 @@ import com.whoeverlovely.mychatapp.R;
  * Created by yan on 4/7/18.
  */
 
-public class NotificationUtils extends BroadcastReceiver {
+public class NotificationCreator extends BroadcastReceiver {
 
     private final static int MSG_RECEIVE_INTENT_ID = 1;
     private final static int MSG_RECEIVE_NOTIFICATION_ID = 1;

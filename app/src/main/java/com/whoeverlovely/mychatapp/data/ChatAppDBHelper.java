@@ -5,11 +5,8 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.support.v4.content.ContextCompat;
-import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,7 +14,6 @@ import android.widget.EditText;
 
 import com.google.common.base.Strings;
 import com.whoeverlovely.mychatapp.R;
-import com.whoeverlovely.mychatapp.util.Security.AESKeyStoreUtil;
 
 /**
  * Created by yan on 3/19/18.
@@ -72,11 +68,11 @@ public class ChatAppDBHelper extends SQLiteOpenHelper {
     public static void setUserNameWithAlertDialog(final Context context, final long userId) {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
 
-        // get username_dialog.xml view
+        // get fragment_username_dialog.xmlialog.xml view
         LayoutInflater inflater = LayoutInflater.from(context);
-        View promptsView = inflater.inflate(R.layout.username_dialog, null);
+        View promptsView = inflater.inflate(R.layout.fragment_username_dialog, null);
 
-        // set username_dialog.xml to alertdialog builder
+        // set fragment_username_dialog.xmlialog.xml to alertdialog builder
         alertDialogBuilder.setView(promptsView);
 
         final EditText userInput = promptsView.findViewById(R.id.username_editText);

@@ -37,9 +37,10 @@
     <string name="show_profile">Show Profile</string>
 
     <!-- Strings related to SharedPreference -->
-    <string name="my_private_key">my_private_key</string>
-    <string name="my_public_key">my_public_key</string>
-    <string name="pref_key_my_user_id">myUserId</string>
+    <string name="pref_my_private_key">my_private_key</string>
+    <string name="pref_my_public_key">my_public_key</string>
+    <string name="pref_my_user_id">myUserId</string>
+    <string name="pref_my_chat_token">chat_token</string>
 
     <!--Strings realted to notification-->
     <string name="msg_received_notification_channel_name">New messages</string>
@@ -52,6 +53,7 @@
     <string name="scan_qrcode">Scan QRcode</string>
     <string name="delete_data">Delete Data</string>
     <string name="qrcode_imageview">qrcode_imageView</string>
+    <string name="please_input_your_friend_s_name">Please input your friend\'s name</string>
 
 
 </resources>

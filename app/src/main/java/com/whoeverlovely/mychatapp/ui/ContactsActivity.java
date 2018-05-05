@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
@@ -16,7 +15,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -28,15 +26,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.MultiFormatWriter;
-import com.google.zxing.WriterException;
-import com.google.zxing.common.BitMatrix;
-import com.journeyapps.barcodescanner.BarcodeEncoder;
+import com.whoeverlovely.mychatapp.ContactsService;
 import com.whoeverlovely.mychatapp.R;
 import com.whoeverlovely.mychatapp.data.ChatAppDBContract;
 import com.whoeverlovely.mychatapp.util.NetworkUtil;
@@ -61,6 +53,9 @@ public class ContactsActivity extends AppCompatActivity implements ContactListAd
     private ContactListAdapter contactListAdapter;
     final private static int ID_CONTACT_LOADER = 1;
     private String myUserId;
+    private String friendUserId;
+
+    private boolean qrCodeReturningWithResult = false;
 
 
     @Override
@@ -68,7 +63,7 @@ public class ContactsActivity extends AppCompatActivity implements ContactListAd
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_contacts);
 
-        myUserId = PreferenceManager.getDefaultSharedPreferences(this).getString(getString(R.string.pref_key_my_user_id), null);
+        myUserId = PreferenceManager.getDefaultSharedPreferences(this).getString(getString(R.string.pref_my_user_id), null);
         if (myUserId == null) {
             Intent intent = new Intent(this, SignUpActivity.class);
             startActivity(intent);
@@ -151,7 +146,7 @@ public class ContactsActivity extends AppCompatActivity implements ContactListAd
 
     //Prepare data for generating profile
     private String getProfile() {
-        String publicKey = PreferenceManager.getDefaultSharedPreferences(this).getString(getString(R.string.my_public_key), null);
+        String publicKey = PreferenceManager.getDefaultSharedPreferences(this).getString(getString(R.string.pref_my_public_key), null);
         JSONObject profileJSON = new JSONObject();
         try {
             profileJSON.put("myUserId", myUserId);
@@ -172,8 +167,9 @@ public class ContactsActivity extends AppCompatActivity implements ContactListAd
 
                 try {
                     JSONObject profileJSON = new JSONObject(profile);
-                    final String userId = profileJSON.getString("myUserId");
+                    String userId = profileJSON.getString("myUserId");
                     String publicKey = profileJSON.getString("publicKey");
+                    friendUserId = userId;
                     publicKey = FriendKeyczarReader.createRsaPublicKey(this, publicKey);
                     Log.d(TAG, "myUserId scanned is " + userId);
                     Log.d(TAG, "publicKey scanned is " + publicKey);
@@ -185,16 +181,17 @@ public class ContactsActivity extends AppCompatActivity implements ContactListAd
 
                     //if my user id is less than the other user, I create an AES key and send to the other user
                     if (myUserId.compareTo(userId) < 0)
-                        new ContactsActivity.ExchangeKey(getApplicationContext()).execute(userId, publicKey, myUserId);
+                        /*new ContactsActivity.ExchangeKey(getApplicationContext()).execute(userId, publicKey, myUserId);*/
+                        ContactsService.startSendKeyService(this, Long.parseLong(userId), publicKey);
 
-                    //display dialog for user name
+                    /*//display dialog for user name
                     android.app.AlertDialog.Builder alertDialogBuilder = new android.app.AlertDialog.Builder(this);
 
-                    // get username_dialog.xml view
+                    // get fragment_username_dialog.xmlialog.xml view
                     LayoutInflater inflater = LayoutInflater.from(this);
-                    View promptsView = inflater.inflate(R.layout.username_dialog, null);
+                    View promptsView = inflater.inflate(R.layout.fragment_username_dialog, null);
 
-                    // set username_dialog.xml to alertdialog builder
+                    // set fragment_username_dialog.xmlialog.xml to alertdialog builder
                     alertDialogBuilder.setView(promptsView);
 
                     final EditText userInput = promptsView.findViewById(R.id.username_editText);
@@ -223,7 +220,11 @@ public class ContactsActivity extends AppCompatActivity implements ContactListAd
                     android.app.AlertDialog alertDialog = alertDialogBuilder.create();
 
                     // show it
-                    alertDialog.show();
+                    alertDialog.show();*/
+
+                    // Display a dialog fragment to edit new contact's name
+                    qrCodeReturningWithResult = true;
+
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -236,6 +237,18 @@ public class ContactsActivity extends AppCompatActivity implements ContactListAd
                 //handle cancel
             }
         }
+    }
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        if (qrCodeReturningWithResult) {
+            FragmentManager fm = getSupportFragmentManager();
+            EditContactNameDialogFragment editNameDialogFragment = EditContactNameDialogFragment.newInstance(Long.parseLong(friendUserId));
+            editNameDialogFragment.show(fm, "fragment_edit_name");
+        }
+        // Reset the boolean flag back to false for next time.
+        qrCodeReturningWithResult = false;
     }
 
 
@@ -276,7 +289,7 @@ public class ContactsActivity extends AppCompatActivity implements ContactListAd
         startActivity(intent);
     }
 
-    private class ExchangeKey extends AsyncTask<String, Void, JSONObject> {
+    /*private class ExchangeKey extends AsyncTask<String, Void, JSONObject> {
         Context context;
 
         ExchangeKey(Context context) {
@@ -352,5 +365,5 @@ public class ContactsActivity extends AppCompatActivity implements ContactListAd
                 Log.d(TAG, error);
             }
         }
-    }
+    }*/
 }

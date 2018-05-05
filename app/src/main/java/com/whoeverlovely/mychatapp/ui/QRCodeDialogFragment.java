@@ -37,7 +37,7 @@ public class QRCodeDialogFragment extends DialogFragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.qrcode_popup, container);
+        return inflater.inflate(R.layout.fragment_qrcode_popup, container);
     }
 
     @Override

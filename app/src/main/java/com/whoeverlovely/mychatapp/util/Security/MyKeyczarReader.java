@@ -38,7 +38,7 @@ public class MyKeyczarReader implements KeyczarReader {
         meta.addVersion(v);
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        String encryptedPrivateKey = sharedPreferences.getString(context.getString(R.string.my_private_key), null);
+        String encryptedPrivateKey = sharedPreferences.getString(context.getString(R.string.pref_my_private_key), null);
         if (Strings.isNullOrEmpty(encryptedPrivateKey)) {
             Log.i(getClass().getSimpleName(), "No stored my key. Creating new one.");
             key = createKey(context);
@@ -76,10 +76,10 @@ public class MyKeyczarReader implements KeyczarReader {
 
             //save encrypted private key and public key in default shared preference
             SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-            if (!sharedPreferences.contains(context.getString(R.string.my_private_key))) {
+            if (!sharedPreferences.contains(context.getString(R.string.pref_my_private_key))) {
                 SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putString(context.getString(R.string.my_private_key), AESKeyStoreUtil.encryptAESKeyStore(privateKey.toString()));
-                editor.putString(context.getString(R.string.my_public_key), privateKey.getPublic().toString());
+                editor.putString(context.getString(R.string.pref_my_private_key), AESKeyStoreUtil.encryptAESKeyStore(privateKey.toString()));
+                editor.putString(context.getString(R.string.pref_my_public_key), privateKey.getPublic().toString());
                 editor.apply();
                 Log.i(TAG, "New key is saved.");
                 Toast.makeText(context, "New key is saved.", Toast.LENGTH_LONG).show();

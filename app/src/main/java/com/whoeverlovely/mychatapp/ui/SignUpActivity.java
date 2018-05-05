@@ -123,8 +123,8 @@ public class SignUpActivity extends AppCompatActivity {
                     chat_token = AESKeyStoreUtil.encryptAESKeyStore(chat_token);
 
                     SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
-                    editor.putString(getString(R.string.pref_key_my_user_id), userId);
-                    editor.putString("chat_token", chat_token);
+                    editor.putString(getString(R.string.pref_my_user_id), userId);
+                    editor.putString(getString(R.string.pref_my_chat_token), chat_token);
                     editor.apply();
 
                     Toast.makeText(context, getString(R.string.signup_success), Toast.LENGTH_LONG).show();
