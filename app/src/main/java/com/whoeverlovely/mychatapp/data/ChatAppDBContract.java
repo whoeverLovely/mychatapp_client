@@ -43,5 +43,11 @@ public class ChatAppDBContract {
         public static final String COLUMN_NAME = "name";
         public static final String COLUMN_AES_KEY = "AESKey";
         public static final String COLUMN_PUBLIC_KEY = "publicKey";
+        /**
+         * -0 unverified
+         * -1 verified
+         */
+        public static final String COLUMN_VERIFIED_FLAG = "verifiedFlag";
+        public static final String COLUMN_SIGNATURE = "signature";
     }
 }

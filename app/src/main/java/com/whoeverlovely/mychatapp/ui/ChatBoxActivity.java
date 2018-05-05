@@ -1,6 +1,7 @@
 package com.whoeverlovely.mychatapp.ui;
 
 import android.content.DialogInterface;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.content.BroadcastReceiver;
 import android.content.ContentUris;
@@ -126,8 +127,10 @@ public class ChatBoxActivity extends AppCompatActivity implements LoaderManager.
                 return true;
 
             case R.id.nickname_chatbox_menu_item:
-                ChatAppDBHelper.setUserNameWithAlertDialog(this, friendId);
-                Log.d(TAG, "nickname changed.");
+                FragmentManager fm = getSupportFragmentManager();
+                EditContactNameDialogFragment editNameDialogFragment = EditContactNameDialogFragment.newInstance(friendId);
+                editNameDialogFragment.show(fm, "fragment_edit_name");
+
                 getSupportLoaderManager().restartLoader(ID_MESSAGE_LOADER, null, this);
                 return true;
 

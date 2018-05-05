@@ -27,7 +27,7 @@ public class ChatAppDBHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "mychatapp.db";
 
     // If you change the database schema, you must increment the database version
-    private static final int DATABASE_VERSION = 5;
+    private static final int DATABASE_VERSION = 8;
 
     // Constructor
     public ChatAppDBHelper(Context context) {
@@ -49,7 +49,9 @@ public class ChatAppDBHelper extends SQLiteOpenHelper {
                 + ChatAppDBContract.ContactEntry.COLUMN_USER_ID + " INTEGER NOT NULL, "
                 + ChatAppDBContract.ContactEntry.COLUMN_NAME + " TEXT, "
                 + ChatAppDBContract.ContactEntry.COLUMN_AES_KEY + " TEXT, "
-                + ChatAppDBContract.ContactEntry.COLUMN_PUBLIC_KEY + " TEXT NOT NULL);";
+                + ChatAppDBContract.ContactEntry.COLUMN_PUBLIC_KEY + " TEXT, "
+                + ChatAppDBContract.ContactEntry.COLUMN_VERIFIED_FLAG + " INTEGER NOT NULL, "
+                + ChatAppDBContract.ContactEntry.COLUMN_SIGNATURE + " TEXT);";
 
         db.execSQL(SQL_CREATE_MESSAGE_TABLE);
         db.execSQL(SQL_CREATE_CONTACT_TABLE);
@@ -65,7 +67,7 @@ public class ChatAppDBHelper extends SQLiteOpenHelper {
 
     }
 
-    public static void setUserNameWithAlertDialog(final Context context, final long userId) {
+    /*public static void setUserNameWithAlertDialog(final Context context, final long userId) {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
 
         // get fragment_username_dialog.xmlialog.xml view
@@ -106,5 +108,5 @@ public class ChatAppDBHelper extends SQLiteOpenHelper {
 
         // show it
         alertDialog.show();
-    }
+    }*/
 }

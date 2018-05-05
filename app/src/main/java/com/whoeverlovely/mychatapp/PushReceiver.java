@@ -54,7 +54,9 @@ public class PushReceiver extends BroadcastReceiver {
 
             SQLiteDatabase db = new ChatAppDBHelper(context).getWritableDatabase();
 
-            try {
+            ContactsService.startReceiveKeyService(context, Long.parseLong(senderId), encryptedKey, signature);
+
+            /*try {
                 //decrypt received key and retrieve key and signature
                 Crypter crypter = new Crypter(new MyKeyczarReader(context));
                 String key = crypter.decrypt(encryptedKey);
@@ -89,7 +91,7 @@ public class PushReceiver extends BroadcastReceiver {
 
             } catch (KeyczarException e) {
                 e.printStackTrace();
-            }
+            }*/
 
         }
 
@@ -110,8 +112,6 @@ public class PushReceiver extends BroadcastReceiver {
             cv.put(ChatAppDBContract.MessageEntry.COLUMN_STATUS, 10);
             context.getContentResolver().insert(ChatAppDBContract.MessageEntry.CONTENT_URI, cv);
 
-
-
             Intent chatBoxIntent = new Intent();
             // You can also include some extra data.
             chatBoxIntent.putExtra(INTENT_LONG_EXTRA_SENDERID, senderId);
@@ -119,9 +119,7 @@ public class PushReceiver extends BroadcastReceiver {
             chatBoxIntent.setAction(NEW_MSG_ACTION);
 
             context.sendOrderedBroadcast(chatBoxIntent, null);
-            /* LocalBroadcastManager.getInstance(context).sendBroadcast(chatBoxIntent);*/
-            // Display notification
-//            NotificationUtils.remindMsgReceived(context, decryptedMsgContent, senderId, senderName);
+
         }
 
     }

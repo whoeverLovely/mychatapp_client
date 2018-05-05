@@ -174,63 +174,15 @@ public class ContactsActivity extends AppCompatActivity implements ContactListAd
                     Log.d(TAG, "myUserId scanned is " + userId);
                     Log.d(TAG, "publicKey scanned is " + publicKey);
 
-                    ContentValues cv = new ContentValues();
-                    cv.put(ChatAppDBContract.ContactEntry.COLUMN_USER_ID, Integer.parseInt(userId));
-                    cv.put(ChatAppDBContract.ContactEntry.COLUMN_PUBLIC_KEY, publicKey);
-                    getContentResolver().insert(ChatAppDBContract.ContactEntry.CONTENT_URI, cv);
+                    ContactsService.startReceiveProfileService(this, publicKey, Long.parseLong(userId));
 
-                    //if my user id is less than the other user, I create an AES key and send to the other user
-                    if (myUserId.compareTo(userId) < 0)
-                        /*new ContactsActivity.ExchangeKey(getApplicationContext()).execute(userId, publicKey, myUserId);*/
-                        ContactsService.startSendKeyService(this, Long.parseLong(userId), publicKey);
-
-                    /*//display dialog for user name
-                    android.app.AlertDialog.Builder alertDialogBuilder = new android.app.AlertDialog.Builder(this);
-
-                    // get fragment_username_dialog.xmlialog.xml view
-                    LayoutInflater inflater = LayoutInflater.from(this);
-                    View promptsView = inflater.inflate(R.layout.fragment_username_dialog, null);
-
-                    // set fragment_username_dialog.xmlialog.xml to alertdialog builder
-                    alertDialogBuilder.setView(promptsView);
-
-                    final EditText userInput = promptsView.findViewById(R.id.username_editText);
-
-                    // set dialog message
-                    alertDialogBuilder
-                            .setCancelable(false)
-                            .setPositiveButton("OK",
-                                    new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int id) {
-                                            // get user input and set it as NAME in table user
-                                            ContentValues cv = new ContentValues();
-                                            cv.put(ChatAppDBContract.ContactEntry.COLUMN_NAME, userInput.getText().toString());
-                                            getContentResolver().update(ContentUris.withAppendedId(ChatAppDBContract.ContactEntry.CONTENT_URI, Long.parseLong(userId)),
-                                                    cv, null, null);
-                                        }
-                                    })
-                            .setNegativeButton("Cancel",
-                                    new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int id) {
-                                            dialog.cancel();
-                                        }
-                                    });
-
-                    // create alert dialog
-                    android.app.AlertDialog alertDialog = alertDialogBuilder.create();
-
-                    // show it
-                    alertDialog.show();*/
-
-                    // Display a dialog fragment to edit new contact's name
-                    qrCodeReturningWithResult = true;
+                        // Display a dialog fragment to edit new contact's name
+                        qrCodeReturningWithResult = true;
 
 
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-
-                //TODO delete the other user's public key in an hour
 
             }
             if (resultCode == RESULT_CANCELED) {
@@ -251,18 +203,17 @@ public class ContactsActivity extends AppCompatActivity implements ContactListAd
         qrCodeReturningWithResult = false;
     }
 
-
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         switch (id) {
             case ID_CONTACT_LOADER:
 
-                //Return a contact list(userId and name) of all contacts whose AES is not null AND !=''
+                //Return a contact list(userId and name) of all contacts whose verifiedFlag = 1
                 return new CursorLoader(this,
                         ChatAppDBContract.ContactEntry.CONTENT_URI,
                         new String[]{ChatAppDBContract.ContactEntry.COLUMN_NAME, ChatAppDBContract.ContactEntry.COLUMN_USER_ID},
-                        ChatAppDBContract.ContactEntry.COLUMN_AES_KEY + " is not null AND " + ChatAppDBContract.ContactEntry.COLUMN_AES_KEY + " != " + "?",
-                        new String[]{""},
+                        ChatAppDBContract.ContactEntry.COLUMN_VERIFIED_FLAG + "=1",
+                        null,
                         null);
 
             default:
@@ -289,81 +240,4 @@ public class ContactsActivity extends AppCompatActivity implements ContactListAd
         startActivity(intent);
     }
 
-    /*private class ExchangeKey extends AsyncTask<String, Void, JSONObject> {
-        Context context;
-
-        ExchangeKey(Context context) {
-            this.context = context;
-        }
-
-        @Override
-        protected JSONObject doInBackground(String... strings) {
-            String userId = strings[0];
-            String publicKey = strings[1];
-
-            //generate aeskey for the friend, encrypt and save in user_key
-            String aesKey = AESKeyStoreUtil.generateAESKey();
-            Log.d(TAG, "generated aes key: " + aesKey);
-
-            ContentValues cv = new ContentValues();
-            cv.put(ChatAppDBContract.ContactEntry.COLUMN_AES_KEY, AESKeyStoreUtil.encryptAESKeyStore(aesKey));
-            getContentResolver().update(ContentUris.withAppendedId(ChatAppDBContract.ContactEntry.CONTENT_URI, Long.parseLong(userId)),
-                    cv, null, null);
-
-            JSONObject data = null;
-            try {
-                //Sign AES key
-                Signer signer = new Signer(new SignKeyReader(context));
-                String signature = signer.sign(aesKey);
-                Log.d("signature: ", signature);
-
-                RsaPublicKey key = (RsaPublicKey) DefaultKeyType.RSA_PUB.getBuilder().read(publicKey);
-                FriendKeyczarReader friendKeyczarReader = new FriendKeyczarReader(key);
-                Encrypter enc = new Encrypter(friendKeyczarReader);
-                String encryptedAESKey = enc.encrypt(aesKey);
-
-                data = new JSONObject();
-                data.put("key", encryptedAESKey);
-                data.put("from", myUserId);
-                data.put("signature", signature);
-
-
-            } catch (JSONException e) {
-                Log.d(TAG, e.toString());
-            } catch (KeyczarException e) {
-                e.printStackTrace();
-            }
-
-            String url = getString(R.string.base_url) + "Forward";
-            String chat_token = PreferenceManager.getDefaultSharedPreferences(context).getString("chat_token", null);
-
-            JSONObject result = null;
-            JSONObject parameter = new JSONObject();
-            try {
-                parameter.put("data", data.toString());
-                parameter.put("receiverUserId", userId);
-                parameter.put("chat_token", AESKeyStoreUtil.decryptAESKeyStore(chat_token));
-                parameter.put("userId", myUserId);
-                result = NetworkUtil.executePost(url, parameter);
-            } catch (JSONException e) {
-                Log.d(TAG, e.toString());
-            }
-
-            return result;
-        }
-
-        @Override
-        protected void onPostExecute(JSONObject jsonObject) {
-            if (jsonObject != null && jsonObject.has("error")) {
-                String error = null;
-                try {
-                    error = jsonObject.getString("error");
-                    Toast.makeText(context, error, Toast.LENGTH_LONG).show();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                Log.d(TAG, error);
-            }
-        }
-    }*/
 }
