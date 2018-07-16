@@ -84,11 +84,6 @@ public class ChatBoxActivity extends AppCompatActivity implements LoaderManager.
         messageListRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         messageListRecyclerView.setAdapter(adapter);
 
-
-        IntentFilter filter = new IntentFilter(PushReceiver.NEW_MSG_ACTION);
-        filter.setPriority(1);
-        registerReceiver(mMessageReceiver, filter);
-
         Button sendButton = findViewById(R.id.chatbox_sendButton);
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -105,6 +100,15 @@ public class ChatBoxActivity extends AppCompatActivity implements LoaderManager.
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+
+        IntentFilter filter = new IntentFilter(PushReceiver.NEW_MSG_ACTION);
+        filter.setPriority(1);
+        registerReceiver(mMessageReceiver, filter);
+    }
+
+     @Override
     protected void onStop() {
         unregisterReceiver(mMessageReceiver);
         super.onStop();

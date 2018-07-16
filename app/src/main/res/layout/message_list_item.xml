@@ -20,7 +20,8 @@
         android:layout_height="wrap_content"
         android:layout_toEndOf="@+id/msg_sender"
         android:textSize="16sp"
-        tools:text="today is Monday"/>
+        tools:text="today is Monday hahahahahahahahahahahahahahaha"
+        android:background="@drawable/chat_bubble"/>
 
     <TextView
         android:id="@+id/msg_timestamp"

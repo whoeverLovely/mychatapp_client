@@ -247,6 +247,7 @@ public class ContactsService extends IntentService {
             parameter.put("chat_token", AESKeyStoreUtil.decryptAESKeyStore(chat_token));
             parameter.put("userId", myUserId);
             result = NetworkUtil.executePost(url, parameter);
+
         } catch (JSONException e) {
             throw new RuntimeException("Json is wrong during sending key to server.");
         }
