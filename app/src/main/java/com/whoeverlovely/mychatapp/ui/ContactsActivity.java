@@ -2,14 +2,10 @@ package com.whoeverlovely.mychatapp.ui;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;
-import android.content.ContentUris;
-import android.content.ContentValues;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
@@ -19,30 +15,21 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.EditText;
 import android.widget.Toast;
 
+import com.whoeverlovely.mychatapp.AddContactActivity;
 import com.whoeverlovely.mychatapp.ContactsService;
 import com.whoeverlovely.mychatapp.R;
 import com.whoeverlovely.mychatapp.data.ChatAppDBContract;
-import com.whoeverlovely.mychatapp.util.NetworkUtil;
-import com.whoeverlovely.mychatapp.util.Security.AESKeyStoreUtil;
 import com.whoeverlovely.mychatapp.util.Security.FriendKeyczarReader;
-import com.whoeverlovely.mychatapp.util.Security.SignKeyReader;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.keyczar.DefaultKeyType;
-import org.keyczar.Encrypter;
-import org.keyczar.RsaPublicKey;
-import org.keyczar.Signer;
-import org.keyczar.exceptions.KeyczarException;
 
 import me.pushy.sdk.Pushy;
 
@@ -62,6 +49,8 @@ public class ContactsActivity extends AppCompatActivity implements ContactListAd
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_contacts);
+
+        setSupportActionBar((Toolbar) findViewById(R.id.my_toolbar));
 
         myUserId = PreferenceManager.getDefaultSharedPreferences(this).getString(getString(R.string.pref_my_user_id), null);
         if (myUserId == null) {
@@ -117,8 +106,10 @@ public class ContactsActivity extends AppCompatActivity implements ContactListAd
                 Toast.makeText(this, "Profile copied!", Toast.LENGTH_LONG).show();
                 return true;
 
-            case R.id.scan_qrcode_contacts_menu_item:
-                try {
+            case R.id.add_contact_contacts_menu_item:
+                Intent addContactIntent = new Intent(this, AddContactActivity.class);
+                startActivity(addContactIntent);
+                /*try {
                     Intent zxingIntent = new Intent("com.google.zxing.client.android.SCAN");
                     zxingIntent.putExtra("SCAN_MODE", "QR_CODE_MODE"); // "PRODUCT_MODE for bar codes
                     startActivityForResult(zxingIntent, 0);
@@ -126,7 +117,7 @@ public class ContactsActivity extends AppCompatActivity implements ContactListAd
                     Uri marketUri = Uri.parse("market://details?id=com.google.zxing.client.android");
                     Intent marketIntent = new Intent(Intent.ACTION_VIEW, marketUri);
                     startActivity(marketIntent);
-                }
+                }*/
                 return true;
 
             case R.id.delete_data_contacts_menu_item:

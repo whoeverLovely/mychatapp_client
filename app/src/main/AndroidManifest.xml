@@ -13,7 +13,9 @@
     <!-- To auto-complete the email text field in the login form with the user's emails -->
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.READ_PROFILE" />
-    <uses-permission android:name="android.permission.READ_CONTACTS" /> <!-- End Pushy Permissions -->
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+
+    <!-- End Pushy Permissions -->
     <!-- To auto-complete the email text field in the login form with the user's emails -->
     <!--
 <uses-permission android:name="android.permission.GET_ACCOUNTS" />
@@ -30,16 +32,14 @@
         <activity
             android:name=".ui.SignUpActivity"
             android:label="@string/signup_title" />
-
         <activity
             android:name=".ui.ChatBoxActivity"
             android:parentActivityName=".ui.ContactsActivity" />
-
         <activity android:name=".ui.TestActivity" />
-
         <activity
             android:name=".ui.ContactsActivity"
-            android:label="@string/contacts_title">
+            android:label="@string/contacts_title"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -60,13 +60,12 @@
             </intent-filter>
         </receiver>
 
-        <service android:name=".ContactsService"/>
+        <service android:name=".ContactsService" />
 
         <provider
             android:name=".data.ChatAppContentProvider"
             android:authorities="com.whoeverlovely.mychatapp"
             android:exported="false" />
-
 
         <!-- Pushy Declarations -->
 
@@ -113,6 +112,7 @@
 
         <!-- End Pushy Declarations -->
 
+        <activity android:name=".AddContactActivity"></activity>
     </application>
 
 </manifest>

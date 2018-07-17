@@ -9,6 +9,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -44,6 +45,7 @@ public class ContactsService extends IntentService {
     public static final String EXTRA_FRIEND_PUBLIC_KEY = "com.whoeverlovely.mychatapp.extra.friend_public_key";
     public static final String EXTRA_KEY = "com.whoeverlovely.mychatapp.extra.key";
     public static final String EXTRA_SIGNATURE = "com.whoeverlovely.mychatapp.extra.signature";
+    public static final String EXTRA_RECEIVE_PROFILE_STATUS = "com.whoeverlovely.mychatapp.extra.status";
 
     public ContactsService() {
         super("ContactsService");
@@ -133,7 +135,9 @@ public class ContactsService extends IntentService {
                 cv.put(ChatAppDBContract.ContactEntry.COLUMN_VERIFIED_FLAG, 0);
                 cv.put(ChatAppDBContract.ContactEntry.COLUMN_SIGNATURE, signature);
                 getContentResolver().insert(ChatAppDBContract.ContactEntry.CONTENT_URI, cv);
+
             }
+
         } catch (KeyczarException e) {
             e.printStackTrace();
         }
@@ -171,6 +175,7 @@ public class ContactsService extends IntentService {
 
         String myUserId = PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
                 .getString(getString(R.string.pref_my_user_id), null);
+
         // If myUserId is less than friend's userId, send AES key
         if (Long.parseLong(myUserId) < friendUserId) {
             handleActionSendKey(friendUserId, friendPublicKey);
@@ -194,6 +199,10 @@ public class ContactsService extends IntentService {
             }
 
         }
+
+        Intent intent = new Intent(ACTION_RECEIVE_PROFILE);
+        intent.putExtra(EXTRA_RECEIVE_PROFILE_STATUS, 1);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
     private void handleActionSendKey(long friendUserId, String friendPublicKey) {

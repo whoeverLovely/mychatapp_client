@@ -54,6 +54,9 @@
     <string name="delete_data">Delete Data</string>
     <string name="qrcode_imageview">qrcode_imageView</string>
     <string name="please_input_your_friend_s_name">Please input your friend\'s name</string>
+    <string name="ok">OK</string>
+    <string name="input_your_friend_s_public_key_here">Input profile here.</string>
+    <string name="invalid_profile">The profile input is invalid.</string>
 
 
 </resources>
