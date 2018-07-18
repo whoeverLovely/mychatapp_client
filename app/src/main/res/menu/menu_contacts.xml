@@ -15,9 +15,10 @@
         android:title="@string/copy_profile"
         app:showAsAction="never"/>
 
-    <item android:id="@+id/scan_qrcode_contacts_menu_item"
+    <item android:id="@+id/add_contact_contacts_menu_item"
         android:title="@string/scan_qrcode"
-        app:showAsAction="never"/>
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_baseline_add_24px"/>
 
     <item android:id="@+id/delete_data_contacts_menu_item"
         android:title="@string/delete_data"

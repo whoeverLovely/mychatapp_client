@@ -66,6 +66,7 @@ public class EditContactNameDialogFragment extends DialogFragment {
         // Inflate and set the layout for the dialog
         // Pass null as the parent view because its going in the dialog layout
         alertDialogBuilder.setView(inflater.inflate(R.layout.fragment_username_dialog, null));
+        alertDialogBuilder.setCancelable(false);
 
         // Add action buttons
         alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {

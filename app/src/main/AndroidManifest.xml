@@ -13,7 +13,9 @@
     <!-- To auto-complete the email text field in the login form with the user's emails -->
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.READ_PROFILE" />
-    <uses-permission android:name="android.permission.READ_CONTACTS" /> <!-- End Pushy Permissions -->
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+
+    <!-- End Pushy Permissions -->
     <!-- To auto-complete the email text field in the login form with the user's emails -->
     <!--
 <uses-permission android:name="android.permission.GET_ACCOUNTS" />
@@ -30,13 +32,10 @@
         <activity
             android:name=".ui.SignUpActivity"
             android:label="@string/signup_title" />
-
         <activity
             android:name=".ui.ChatBoxActivity"
             android:parentActivityName=".ui.ContactsActivity" />
-
         <activity android:name=".ui.TestActivity" />
-
         <activity
             android:name=".ui.ContactsActivity"
             android:label="@string/app_name">
@@ -54,19 +53,22 @@
                 android:value=".ui.ContactsActivity" />
         </activity>
 
+        <activity
+            android:name=".AddContactActivity"
+            android:parentActivityName=".ui.ContactsActivity" />
+
         <receiver android:name=".NotificationCreator">
             <intent-filter>
                 <action android:name="com.whoeverlovely.mychatapp.action.action_new_message" />
             </intent-filter>
         </receiver>
 
-        <service android:name=".ContactsService"/>
+        <service android:name=".ContactsService" />
 
         <provider
             android:name=".data.ChatAppContentProvider"
             android:authorities="com.whoeverlovely.mychatapp"
             android:exported="false" />
-
 
         <!-- Pushy Declarations -->
 
@@ -112,6 +114,7 @@
         <service android:name="me.pushy.sdk.services.PushySocketService" />
 
         <!-- End Pushy Declarations -->
+
 
     </application>
 
