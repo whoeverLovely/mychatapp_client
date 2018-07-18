@@ -38,8 +38,7 @@
         <activity android:name=".ui.TestActivity" />
         <activity
             android:name=".ui.ContactsActivity"
-            android:label="@string/contacts_title"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+            android:label="@string/contacts_title">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -53,6 +52,10 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.ContactsActivity" />
         </activity>
+
+        <activity
+            android:name=".AddContactActivity"
+            android:parentActivityName=".ui.ContactsActivity" />
 
         <receiver android:name=".NotificationCreator">
             <intent-filter>
@@ -112,7 +115,7 @@
 
         <!-- End Pushy Declarations -->
 
-        <activity android:name=".AddContactActivity"></activity>
+
     </application>
 
 </manifest>

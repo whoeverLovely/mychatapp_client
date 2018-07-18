@@ -14,6 +14,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 import com.whoeverlovely.mychatapp.ui.EditContactNameDialogFragment;
 import com.whoeverlovely.mychatapp.util.Security.FriendKeyczarReader;
 
@@ -27,6 +29,7 @@ public class AddContactActivity extends AppCompatActivity {
     private Button confirmProfileBtn;
 
     private String friendUserId;
+    private String profile;
 
     private final static String TAG = AddContactActivity.class.getSimpleName();
 
@@ -51,15 +54,22 @@ public class AddContactActivity extends AppCompatActivity {
         confirmProfileBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String profile = profileEditText.getText().toString();
-                handleProfile(profile);
+                profile = profileEditText.getText().toString();
+                handleProfile();
+            }
+        });
 
-
+        scanQRCodeBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new IntentIntegrator(AddContactActivity.this).initiateScan();
             }
         });
 
         LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver,
                 new IntentFilter(ContactsService.ACTION_RECEIVE_PROFILE));
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
     }
 
@@ -70,7 +80,27 @@ public class AddContactActivity extends AppCompatActivity {
 
     }
 
-    private void handleProfile(String profile) {
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (requestCode == IntentIntegrator.REQUEST_CODE) {
+            // Process scanning result
+            IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+            if(result != null) {
+                if(result.getContents() == null) {
+                    Snackbar.make(scanQRCodeBtn, "Cancelled!", Snackbar.LENGTH_LONG).show();
+                } else {
+                    profile = result.getContents();
+                    Log.d(TAG, "the scanning result is " + profile);
+                    handleProfile();
+                }
+            } else {
+                super.onActivityResult(requestCode, resultCode, data);
+            }
+        }
+    }
+
+    private void handleProfile() {
 
         try {
             JSONObject profileJSON = new JSONObject(profile);
@@ -84,7 +114,7 @@ public class AddContactActivity extends AppCompatActivity {
 
         } catch (JSONException e) {
             e.printStackTrace();
-            Snackbar.make(profileEditText, R.string.invalid_profile, Snackbar.LENGTH_LONG);
+            Snackbar.make(profileEditText, R.string.invalid_profile, Snackbar.LENGTH_LONG).show();
         }
     }
 
